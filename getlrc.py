@@ -1,7 +1,6 @@
 import requests
 import json
 import argparse
-import sys
 from datetime import timedelta
 
 
@@ -21,7 +20,7 @@ class MusixmatchProvider:
                 return self.token
             print("Failed to refresh token: Too many attempts")
         print("Failed to refresh token")
-        sys.exit(1)
+        pass
 
     def find_lyrics(self, info):
         params = {
@@ -40,15 +39,11 @@ class MusixmatchProvider:
             params.update({"q_duration": duration, "f_subtitle_length": int(duration)})
 
         response = requests.get(f"{self.base_url}/macro.subtitles.get", params=params, headers=self.headers)
+        print(params)
         return response.json().get("message", {}).get("body", {}).get("macro_calls", {})
 
     @staticmethod
     def get_lyrics_data(body, lrctype="synced"):
-        track_info = body.get("matcher.track.get", {}).get("message", {}).get("body", {})
-        if track_info.get("track", {}).get("instrumental"):
-            return [{"text": "♪ Instrumental ♪", "startTime": "0000"}] if lrctype == "synced" else [
-                {"text": "♪ Instrumental ♪"}]
-
         if lrctype == "synced":
             subtitle = \
                 body.get("track.subtitles.get", {}).get("message", {}).get("body", {}).get("subtitle_list", [{}])[
@@ -58,10 +53,10 @@ class MusixmatchProvider:
                 {"text": line["text"] or "♪", "startTime": line["time"]["total"] * 1000}
                 for line in json.loads(subtitle.get("subtitle_body", "[]"))
             ] if subtitle else None
-        else:
-            lyrics_body = body.get("track.lyrics.get", {}).get("message", {}).get("body", {}).get("lyrics", {}).get(
-                "lyrics_body")
-            return [{"text": line} for line in lyrics_body.split("\n")] if lyrics_body else None
+
+        lyrics_body = body.get("track.lyrics.get", {}).get("message", {}).get("body", {}).get("lyrics", {}).get(
+            "lyrics_body")
+        return [{"text": line} for line in lyrics_body.split("\n")] if lyrics_body else None
 
 
 def format_time(milliseconds):
@@ -76,8 +71,7 @@ def write_to_lrc(filename, lyrics_data, synced=True):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="RMxLRC Command Line Version By ElliotCHEN37. "
-                                                 "A program that can download lyrics you want from Musixmatch freely.")
+    parser = argparse.ArgumentParser(description="RMxLRC Command Line Version By ElliotCHEN37.")
     parser.add_argument("-m", "--album", help="Album name")
     parser.add_argument("-a", "--artist", required=True, help="Artist name")
     parser.add_argument("-n", "--title", required=True, help="Track title")
