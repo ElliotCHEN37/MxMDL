@@ -15,12 +15,12 @@ VSVersionInfo(
       StringTable(
         u'040904B0',
         [StringStruct(u'CompanyName', u'ElliotCHEN37'),
-        StringStruct(u'FileDescription', u'RMxLRC'),
+        StringStruct(u'FileDescription', u'RMxLRC GUI'),
         StringStruct(u'FileVersion', u'1.0'),
-        StringStruct(u'InternalName', u'RMxLRC'),
+        StringStruct(u'InternalName', u'GRMxLRC'),
         StringStruct(u'LegalCopyright', u'\xa9 ElliotCHEN37 2024 Licensed under MIT License'),
-        StringStruct(u'OriginalFilename', u'RMxLRC_Windows_x64.exe'),
-        StringStruct(u'ProductName', u'RMxLRC'),
+        StringStruct(u'OriginalFilename', u'RMxLRC_GUI_Windows_x64.exe'),
+        StringStruct(u'ProductName', u'RMxLRC GUI'),
         StringStruct(u'ProductVersion', u'1.0.0')])
       ]), 
     VarFileInfo([VarStruct(u'Translation', [1033, 1200])])
