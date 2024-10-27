@@ -1,3 +1,4 @@
+import os
 import sys
 import webbrowser
 from PySide6.QtWidgets import QApplication, QMainWindow, QMessageBox
@@ -26,6 +27,7 @@ class MainWindow:
         self.ui.actionAbout.triggered.connect(self.about_message)
         self.ui.actionLicense.triggered.connect(self.license_message)
         self.ui.actionRelease_Page.triggered.connect(self.view_release)
+        self.ui.actionOpen_config_file.triggered.connect(self.open_config)
 
     def download_lyrics(self):
         artist = self.ui.artist_LineEdit.text()
@@ -90,6 +92,10 @@ SOFTWARE.
     @staticmethod
     def view_release():
         webbrowser.open_new_tab("https://github.com/ElliotCHEN37/RMxLRC/releases")
+
+    @staticmethod
+    def open_config():
+        os.startfile("config.json")
 
     def run(self):
         self.window.show()
