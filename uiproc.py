@@ -6,8 +6,7 @@ from PySide6.QtWidgets import QApplication, QMainWindow, QMessageBox, QFileDialo
 from PySide6 import QtGui
 from PySide6.QtCore import QTranslator
 from mainwin import Ui_MainWindow
-from getlrc import MusixmatchProvider, write_to_lrc
-import tinytag
+from getlrc import download_lyrics, dir_mode, read_audio
 
 
 class MainWindow:
@@ -44,78 +43,24 @@ class MainWindow:
         self.ui.actionOpenDir.triggered.connect(self.dir_mode)
 
     def download_lyrics(self):
-        try:
-            artist = self.ui.artist_LineEdit.text()
-            title = self.ui.title_LineEdit.text()
-            album = self.ui.album_LineEdit.text() or None
-            duration = self.ui.duration_LineEdit.text()
-            token = self.ui.token_LineEdit.text() or None
+        artist = self.ui.artist_LineEdit.text()
+        title = self.ui.title_LineEdit.text()
+        album = self.ui.album_LineEdit.text() or None
+        duration = self.ui.duration_LineEdit.text()
+        token = self.ui.token_LineEdit.text() or None
 
-            lrctype_index = self.ui.lrctype_comboBox.currentIndex()
-            lrctype = "synced" if lrctype_index == 0 else "unsynced"
+        lrctype_index = self.ui.lrctype_comboBox.currentIndex()
+        lrctype = "synced" if lrctype_index == 0 else "unsynced"
+        duration = int(duration) if duration.isdigit() else None
 
-            duration = int(duration) if duration.isdigit() else None
-
-            info = {"album": album, "artist": artist, "title": title, "duration": duration}
-
-            provider = MusixmatchProvider(token=token)
-            lyrics_data = provider.find_lyrics(info)
-
-            if lyrics_data:
-                filename = f"{artist} - {title}.lrc"
-                lyrics = provider.get_lyrics_data(lyrics_data, lrctype=lrctype)
-
-                if lyrics:
-                    write_to_lrc(filename, lyrics, synced=(lrctype == "synced"))
-                    self.ui.statusbar.showMessage(self.app.tr(f"LRC file '{filename}' saved with {lrctype} lyrics."))
-                else:
-                    self.ui.statusbar.showMessage(self.app.tr("No lyrics found."))
-            else:
-                self.ui.statusbar.showMessage(self.app.tr("Lyrics not found."))
-        except Exception as e:
-            QMessageBox.critical(self.window, self.app.tr("Error"), self.app.tr(f"An error occurred: {str(e)}"))
+        download_lyrics(self.ui, token, artist, title, album, duration, lrctype)
 
     def dir_mode(self):
         directory = QFileDialog.getExistingDirectory(self.window, self.app.tr("Select Directory"))
         if not directory:
             return
 
-        for root, _, files in os.walk(directory):
-            for filename in files:
-                if not filename.lower().endswith(('.aiff', '.aif', '.aifc', '.wma', '.flac', '.opus', '.ogg', '.wav',
-                                                  '.m4a', '.mp3', '.mp2', '.mp1')):
-                    continue
-
-                audio_file_path = os.path.join(root, filename)
-                try:
-                    tag = tinytag.TinyTag.get(audio_file_path)
-                    artist = tag.artist
-                    title = tag.title
-                    duration = tag.duration
-                    token = self.token
-
-                    info = {"album": None, "artist": artist, "title": title, "duration": duration}
-                    provider = MusixmatchProvider(token=token)
-                    lyrics_data = provider.find_lyrics(info)
-
-                    if not lyrics_data:
-                        self.ui.statusbar.showMessage(
-                            self.app.tr(f"No lyrics data found for '{title}' by {artist}. Skipping..."))
-                        continue
-
-                    lrc_filename = f"{os.path.splitext(filename)[0]}.lrc"
-                    lrc_file_path = os.path.join(root, lrc_filename)
-                    lyrics = provider.get_lyrics_data(lyrics_data, lrctype="synced")
-
-                    if lyrics:
-                        write_to_lrc(lrc_file_path, lyrics, synced=True)
-                        self.ui.statusbar.showMessage(self.app.tr(f"LRC file '{lrc_filename}' saved."))
-                    else:
-                        self.ui.statusbar.showMessage(
-                            self.app.tr(f"No lyrics found for '{title}' by {artist}. Skipping..."))
-
-                except Exception as e:
-                    self.ui.statusbar.showMessage(self.app.tr(f"Error processing {filename}: {str(e)}"))
+        dir_mode(self.ui, self.token, directory)
 
     def about_message(self):
         QMessageBox.about(self.window, self.app.tr("About"), self.app.tr(f"RMxLRC GUI {self.vernum} By ElliotCHEN37\n"
@@ -176,22 +121,7 @@ SOFTWARE.
             return {}
 
     def read_audio(self):
-        file_path, _ = QFileDialog.getOpenFileName(caption=self.app.tr("Open Audio File"),
-                                                   filter=self.app.tr("Supported Audio Files (*.aiff *.aif *.aifc *.wma"
-                                                                      " *.flac *.opus *.ogg *.wav *.m4a *.mp3 *.mp2 "
-                                                                      "*.mp1)"))
-        if file_path:
-            try:
-                self.ui.statusbar.showMessage(self.app.tr(f"Selected audio file: {file_path}"))
-                tag = tinytag.TinyTag.get(file_path)
-                self.ui.artist_LineEdit.setText(tag.artist)
-                self.ui.title_LineEdit.setText(tag.title)
-                self.ui.album_LineEdit.setText(tag.album)
-            except Exception as e:
-                QMessageBox.critical(self.window, self.app.tr("Error"),
-                                     self.app.tr(f"Failed to read audio file: {str(e)}"))
-        else:
-            self.ui.statusbar.showMessage(self.app.tr("No audio file selected"))
+        read_audio(self.ui, self.app)
 
     def run(self):
         self.window.show()
