@@ -41,6 +41,7 @@ class MainWindow:
         self.ui.actionExit.triggered.connect(sys.exit)
         self.ui.actionReadGenConfig.triggered.connect(self.load_config)
         self.ui.actionOpen_Audio_File.triggered.connect(self.read_audio)
+        self.ui.actionOpenDir.triggered.connect(self.dir_mode)
 
     def download_lyrics(self):
         try:
@@ -72,7 +73,49 @@ class MainWindow:
             else:
                 self.ui.statusbar.showMessage(self.app.tr("Lyrics not found."))
         except Exception as e:
-            QMessageBox.critical(self.window, "Error", f"An error occurred: {str(e)}")
+            QMessageBox.critical(self.window, self.app.tr("Error"), self.app.tr(f"An error occurred: {str(e)}"))
+
+    def dir_mode(self):
+        directory = QFileDialog.getExistingDirectory(self.window, self.app.tr("Select Directory"))
+        if not directory:
+            return
+
+        for root, _, files in os.walk(directory):
+            for filename in files:
+                if not filename.lower().endswith(('.aiff', '.aif', '.aifc', '.wma', '.flac', '.opus', '.ogg', '.wav',
+                                                  '.m4a', '.mp3', '.mp2', '.mp1')):
+                    continue
+
+                audio_file_path = os.path.join(root, filename)
+                try:
+                    tag = tinytag.TinyTag.get(audio_file_path)
+                    artist = tag.artist
+                    title = tag.title
+                    duration = tag.duration
+                    token = self.token
+
+                    info = {"album": None, "artist": artist, "title": title, "duration": duration}
+                    provider = MusixmatchProvider(token=token)
+                    lyrics_data = provider.find_lyrics(info)
+
+                    if not lyrics_data:
+                        self.ui.statusbar.showMessage(
+                            self.app.tr(f"No lyrics data found for '{title}' by {artist}. Skipping..."))
+                        continue
+
+                    lrc_filename = f"{os.path.splitext(filename)[0]}.lrc"
+                    lrc_file_path = os.path.join(root, lrc_filename)
+                    lyrics = provider.get_lyrics_data(lyrics_data, lrctype="synced")
+
+                    if lyrics:
+                        write_to_lrc(lrc_file_path, lyrics, synced=True)
+                        self.ui.statusbar.showMessage(self.app.tr(f"LRC file '{lrc_filename}' saved."))
+                    else:
+                        self.ui.statusbar.showMessage(
+                            self.app.tr(f"No lyrics found for '{title}' by {artist}. Skipping..."))
+
+                except Exception as e:
+                    self.ui.statusbar.showMessage(self.app.tr(f"Error processing {filename}: {str(e)}"))
 
     def about_message(self):
         QMessageBox.about(self.window, self.app.tr("About"), self.app.tr(f"RMxLRC GUI {self.vernum} By ElliotCHEN37\n"
@@ -129,27 +172,26 @@ SOFTWARE.
             with open("config.json", "r") as f:
                 return json.load(f)
         except Exception as e:
-            QMessageBox.critical(self.window, "Error", f"Failed to load config: {str(e)}")
+            QMessageBox.critical(self.window, self.app.tr("Error"), self.app.tr(f"Failed to load config: {str(e)}"))
             return {}
 
     def read_audio(self):
-        file_path, _ = QFileDialog.getOpenFileName(caption="Open Audio File",
-                                                   filter="Supported Audio Files (*.aiff *.aif *.aifc *.wma *.flac "
-                                                          "*.opus *.ogg *.wav *.m4a *.mp3 *.mp2 *.mp1)")
+        file_path, _ = QFileDialog.getOpenFileName(caption=self.app.tr("Open Audio File"),
+                                                   filter=self.app.tr("Supported Audio Files (*.aiff *.aif *.aifc *.wma"
+                                                                      " *.flac *.opus *.ogg *.wav *.m4a *.mp3 *.mp2 "
+                                                                      "*.mp1)"))
         if file_path:
             try:
-                print(f"Selected audio file: {file_path}")
+                self.ui.statusbar.showMessage(self.app.tr(f"Selected audio file: {file_path}"))
                 tag = tinytag.TinyTag.get(file_path)
-                print(f"Artist: {tag.artist}")
-                print(f"Title: {tag.title}")
-                print(f"Album: {tag.album}")
                 self.ui.artist_LineEdit.setText(tag.artist)
                 self.ui.title_LineEdit.setText(tag.title)
                 self.ui.album_LineEdit.setText(tag.album)
             except Exception as e:
-                QMessageBox.critical(self.window, "Error", f"Failed to read audio file: {str(e)}")
+                QMessageBox.critical(self.window, self.app.tr("Error"),
+                                     self.app.tr(f"Failed to read audio file: {str(e)}"))
         else:
-            print("No audio file selected")
+            self.ui.statusbar.showMessage(self.app.tr("No audio file selected"))
 
     def run(self):
         self.window.show()
