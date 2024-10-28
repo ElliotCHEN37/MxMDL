@@ -49,7 +49,9 @@ class MainWindow:
             album = self.ui.album_LineEdit.text() or None
             duration = self.ui.duration_LineEdit.text()
             token = self.ui.token_LineEdit.text() or None
-            lrctype = self.ui.lrctype_comboBox.currentText().lower()
+
+            lrctype_index = self.ui.lrctype_comboBox.currentIndex()
+            lrctype = "synced" if lrctype_index == 0 else "unsynced"
 
             duration = int(duration) if duration.isdigit() else None
 
@@ -132,7 +134,8 @@ SOFTWARE.
 
     def read_audio(self):
         file_path, _ = QFileDialog.getOpenFileName(caption="Open Audio File",
-                                                   filter="Supported Audio Files (*.aiff *.aif *.aifc *.wma *.flac *.opus *.ogg *.wav *.m4a *.mp3 *.mp2 *.mp1)")
+                                                   filter="Supported Audio Files (*.aiff *.aif *.aifc *.wma *.flac "
+                                                          "*.opus *.ogg *.wav *.m4a *.mp3 *.mp2 *.mp1)")
         if file_path:
             try:
                 print(f"Selected audio file: {file_path}")

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
+ <author>ElliotCHEN</author>
  <class>MainWindow</class>
  <widget class="QMainWindow" name="MainWindow">
   <property name="geometry">
@@ -247,7 +248,7 @@
      <string>File</string>
     </property>
     <addaction name="actionOpen_Audio_File"/>
-    <addaction name="actionOpen_song_list"/>
+    <addaction name="actionOpenDir"/>
     <addaction name="separator"/>
     <addaction name="actionReadGenConfig"/>
     <addaction name="separator"/>
@@ -346,15 +347,15 @@
     <string>Alt+R</string>
    </property>
   </action>
-  <action name="actionOpen_song_list">
+  <action name="actionOpenDir">
    <property name="icon">
-    <iconset theme="QIcon::ThemeIcon::DocumentOpen"/>
+    <iconset theme="QIcon::ThemeIcon::FolderOpen"/>
    </property>
    <property name="text">
-    <string>Open song list</string>
+    <string>Open Directory</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+S</string>
+    <string>Ctrl+D</string>
    </property>
   </action>
  </widget>
