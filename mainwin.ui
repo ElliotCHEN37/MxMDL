@@ -23,7 +23,7 @@
    <locale language="English" country="UnitedStates"/>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QGridLayout" name="gridLayout_3">
+   <layout class="QGridLayout" name="gridLayout_2">
     <item row="0" column="0">
      <widget class="CardWidget" name="frame_2">
       <property name="frameShape">
@@ -78,6 +78,9 @@
          </item>
          <item>
           <widget class="LineEdit" name="artist_LineEdit">
+           <property name="toolTip">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Artist of the song&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
            <property name="text">
             <string/>
            </property>
@@ -97,7 +100,11 @@
           </widget>
          </item>
          <item>
-          <widget class="LineEdit" name="title_LineEdit"/>
+          <widget class="LineEdit" name="title_LineEdit">
+           <property name="toolTip">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Name of the song&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
+          </widget>
          </item>
         </layout>
        </item>
@@ -115,7 +122,110 @@
       <property name="lineWidth">
        <number>2</number>
       </property>
-      <layout class="QGridLayout" name="gridLayout_2">
+      <layout class="QGridLayout" name="gridLayout_3">
+       <item row="0" column="0">
+        <widget class="LargeTitleLabel" name="optpar_Label">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="font">
+          <font>
+           <family>Microsoft YaHei</family>
+           <pointsize>12</pointsize>
+          </font>
+         </property>
+         <property name="text">
+          <string>Optional parameters</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <layout class="QHBoxLayout" name="horizontalLayout_2">
+         <item>
+          <widget class="CaptionLabel" name="album_Label">
+           <property name="font">
+            <font>
+             <family>Microsoft YaHei</family>
+             <pointsize>10</pointsize>
+            </font>
+           </property>
+           <property name="text">
+            <string>Album:</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="LineEdit" name="album_LineEdit">
+           <property name="toolTip">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Album of the song&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="CaptionLabel" name="slpdur_Label">
+           <property name="font">
+            <font>
+             <family>Microsoft YaHei</family>
+             <pointsize>10</pointsize>
+            </font>
+           </property>
+           <property name="text">
+            <string>Sleep:</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="LineEdit" name="slpdur_LineEdit">
+           <property name="toolTip">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Sleep time in second during downloading multiple lyrics to avoid temporary ban from Musixmatch (Only effect Directory Mode)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
+           <property name="text">
+            <string>30</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item row="2" column="0">
+        <layout class="QHBoxLayout" name="horizontalLayout_3">
+         <item>
+          <widget class="CaptionLabel" name="token_Label">
+           <property name="font">
+            <font>
+             <family>Microsoft YaHei</family>
+             <pointsize>10</pointsize>
+            </font>
+           </property>
+           <property name="text">
+            <string>Token:</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="LineEdit" name="token_LineEdit">
+           <property name="toolTip">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Your Musixmatch user token for Windows (If you don't have one, RMxLRC will generate a new one for you)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="ToolButton" name="refresh_pushButton">
+           <property name="toolTip">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Generate new user token&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="icon">
+            <iconset theme="sync-synchronizing"/>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
        <item row="3" column="0">
         <layout class="QHBoxLayout" name="horizontalLayout_4">
          <item>
@@ -147,86 +257,14 @@
          </item>
         </layout>
        </item>
-       <item row="2" column="0">
-        <layout class="QHBoxLayout" name="horizontalLayout_3">
-         <item>
-          <widget class="CaptionLabel" name="token_Label">
-           <property name="font">
-            <font>
-             <family>Microsoft YaHei</family>
-             <pointsize>10</pointsize>
-            </font>
-           </property>
-           <property name="text">
-            <string>Token:</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="LineEdit" name="token_LineEdit"/>
-         </item>
-        </layout>
-       </item>
-       <item row="1" column="0">
-        <layout class="QHBoxLayout" name="horizontalLayout_2">
-         <item>
-          <widget class="CaptionLabel" name="album_Label">
-           <property name="font">
-            <font>
-             <family>Microsoft YaHei</family>
-             <pointsize>10</pointsize>
-            </font>
-           </property>
-           <property name="text">
-            <string>Album:</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="LineEdit" name="album_LineEdit"/>
-         </item>
-         <item>
-          <widget class="CaptionLabel" name="duration_Label">
-           <property name="font">
-            <font>
-             <family>Microsoft YaHei</family>
-             <pointsize>10</pointsize>
-            </font>
-           </property>
-           <property name="text">
-            <string>Duration:</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="LineEdit" name="duration_LineEdit"/>
-         </item>
-        </layout>
-       </item>
-       <item row="0" column="0">
-        <widget class="LargeTitleLabel" name="optpar_Label">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="font">
-          <font>
-           <family>Microsoft YaHei</family>
-           <pointsize>12</pointsize>
-          </font>
-         </property>
-         <property name="text">
-          <string>Optional parameters</string>
-         </property>
-        </widget>
-       </item>
       </layout>
      </widget>
     </item>
     <item row="2" column="0">
      <widget class="PushButton" name="pushButton">
+      <property name="toolTip">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Download lyric from Musixmatch&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
       <property name="text">
        <string>Download</string>
       </property>
@@ -390,6 +428,11 @@
    <extends>QFrame</extends>
    <header>qfluentwidgets</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>ToolButton</class>
+   <extends>QPushButton</extends>
+   <header>qfluentwidgets</header>
   </customwidget>
  </customwidgets>
  <resources>

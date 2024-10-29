@@ -3,6 +3,7 @@ import requests
 import json
 import argparse
 from datetime import timedelta
+import time
 import tinytag
 from PySide6.QtWidgets import QMessageBox, QFileDialog
 
@@ -13,12 +14,12 @@ class MusixmatchProvider:
         self.headers = {"authority": "apic-desktop.musixmatch.com", "cookie": "x-mxm-token-guid="}
         self.token = token or self.refresh_token()
 
-    def refresh_token(self):
+    def refresh_token(self, ui):
         response = requests.get(f"{self.base_url}/token.get?app_id=web-desktop-app-v1.0", headers=self.headers)
         if response.status_code == 200:
             self.token = response.json().get("message", {}).get("body", {}).get("user_token")
             if self.token:
-                print("Token refreshed successfully")
+                ui.statusbar.showMessage("Token refreshed successfully")
                 return self.token
         print("Failed to refresh token")
         return None
@@ -35,9 +36,6 @@ class MusixmatchProvider:
         }
         if info.get("album"):
             params["q_album"] = info["album"]
-        if info.get("duration"):
-            duration = info["duration"] / 1000
-            params.update({"q_duration": duration, "f_subtitle_length": int(duration)})
 
         response = requests.get(f"{self.base_url}/macro.subtitles.get", params=params, headers=self.headers)
         return response.json().get("message", {}).get("body", {}).get("macro_calls", {})
@@ -70,9 +68,9 @@ def write_to_lrc(filename, lyrics_data, synced=True):
             f.write(f"{format_time(line['startTime']) if synced else ''}{line['text']}\n")
 
 
-def download_lyrics(ui, token, artist, title, album, duration, lrctype):
+def download_lyrics(ui, token, artist, title, album, lrctype):
     try:
-        info = {"album": album, "artist": artist, "title": title, "duration": duration}
+        info = {"album": album, "artist": artist, "title": title}
         provider = MusixmatchProvider(token=token)
         lyrics_data = provider.find_lyrics(info)
 
@@ -91,7 +89,7 @@ def download_lyrics(ui, token, artist, title, album, duration, lrctype):
         QMessageBox.critical(ui.window, "Error", f"An error occurred: {str(e)}")
 
 
-def dir_mode(ui, token, directory):
+def dir_mode(ui, token, directory, interval):
     for root, _, files in os.walk(directory):
         for filename in files:
             if not filename.lower().endswith(('.aiff', '.aif', '.aifc', '.wma', '.flac', '.opus', '.ogg', '.wav',
@@ -103,9 +101,8 @@ def dir_mode(ui, token, directory):
                 tag = tinytag.TinyTag.get(audio_file_path)
                 artist = tag.artist
                 title = tag.title
-                duration = tag.duration
 
-                info = {"album": None, "artist": artist, "title": title, "duration": duration}
+                info = {"album": None, "artist": artist, "title": title}
                 provider = MusixmatchProvider(token=token)
                 lyrics_data = provider.find_lyrics(info)
 
@@ -123,15 +120,17 @@ def dir_mode(ui, token, directory):
                 else:
                     ui.statusbar.showMessage(f"No lyrics found for '{title}' by {artist}. Skipping...")
 
+                time.sleep(interval)
+
             except Exception as e:
                 ui.statusbar.showMessage(f"Error processing {filename}: {str(e)}")
 
 
 def read_audio(ui, app):
     file_path, _ = QFileDialog.getOpenFileName(caption=app.tr("Open Audio File"),
-                                                filter=app.tr("Supported Audio Files (*.aiff *.aif *.aifc *.wma"
-                                                               " *.flac *.opus *.ogg *.wav *.m4a *.mp3 *.mp2 "
-                                                               "*.mp1)"))
+                                               filter=app.tr("Supported Audio Files (*.aiff *.aif *.aifc *.wma"
+                                                             " *.flac *.opus *.ogg *.wav *.m4a *.mp3 *.mp2 "
+                                                             "*.mp1)"))
     if file_path:
         try:
             ui.statusbar.showMessage(app.tr(f"Selected audio file: {file_path}"))
@@ -151,13 +150,12 @@ def main():
     parser.add_argument("-m", "--album", help="Album name")
     parser.add_argument("-a", "--artist", required=True, help="Artist name")
     parser.add_argument("-n", "--title", required=True, help="Track title")
-    parser.add_argument("-d", "--duration", type=int, help="Track duration in milliseconds")
     parser.add_argument("-t", "--token", help="Musixmatch user token")
     parser.add_argument("-y", "--lyrics-type", choices=["synced", "unsynced"], default="synced",
                         help="Type of lyrics to download")
 
     args = parser.parse_args()
-    info = {"album": args.album, "artist": args.artist, "title": args.title, "duration": args.duration}
+    info = {"album": args.album, "artist": args.artist, "title": args.title}
 
     provider = MusixmatchProvider(token=args.token)
     lyrics_data = provider.find_lyrics(info)

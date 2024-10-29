@@ -6,7 +6,7 @@ from PySide6.QtWidgets import QApplication, QMainWindow, QMessageBox, QFileDialo
 from PySide6 import QtGui
 from PySide6.QtCore import QTranslator
 from mainwin import Ui_MainWindow
-from getlrc import download_lyrics, dir_mode, read_audio
+from getlrc import download_lyrics, dir_mode, read_audio, MusixmatchProvider
 
 
 class MainWindow:
@@ -41,26 +41,32 @@ class MainWindow:
         self.ui.actionReadGenConfig.triggered.connect(self.load_config)
         self.ui.actionOpen_Audio_File.triggered.connect(self.read_audio)
         self.ui.actionOpenDir.triggered.connect(self.dir_mode)
+        self.ui.refresh_pushButton.clicked.connect(self.refreshtoken)
 
     def download_lyrics(self):
         artist = self.ui.artist_LineEdit.text()
         title = self.ui.title_LineEdit.text()
         album = self.ui.album_LineEdit.text() or None
-        duration = self.ui.duration_LineEdit.text()
         token = self.ui.token_LineEdit.text() or None
 
         lrctype_index = self.ui.lrctype_comboBox.currentIndex()
         lrctype = "synced" if lrctype_index == 0 else "unsynced"
-        duration = int(duration) if duration.isdigit() else None
 
-        download_lyrics(self.ui, token, artist, title, album, duration, lrctype)
+        download_lyrics(self.ui, token, artist, title, album, lrctype)
 
     def dir_mode(self):
         directory = QFileDialog.getExistingDirectory(self.window, self.app.tr("Select Directory"))
         if not directory:
             return
 
-        dir_mode(self.ui, self.token, directory)
+        try:
+            interval = int(self.ui.slpdur_LineEdit.text())
+        except ValueError:
+            QMessageBox.warning(self.window, self.app.tr("Input Error"),
+                                self.app.tr("Please enter a valid number for the time interval."))
+            return
+
+        dir_mode(self.ui, self.token, directory, interval)
 
     def about_message(self):
         QMessageBox.about(self.window, self.app.tr("About"), self.app.tr(f"RMxLRC GUI {self.vernum} By ElliotCHEN37\n"
@@ -122,6 +128,19 @@ SOFTWARE.
 
     def read_audio(self):
         read_audio(self.ui, self.app)
+
+    def refreshtoken(self):
+        try:
+            provider = MusixmatchProvider(token=self.token)
+            new_token = provider.refresh_token(self.ui)
+            if new_token:
+                self.token = new_token
+                self.ui.token_LineEdit.setText(new_token)
+                self.ui.statusbar.showMessage(self.app.tr("Token refreshed successfully."))
+            else:
+                self.ui.statusbar.showMessage(self.app.tr("Failed to refresh token."))
+        except Exception as e:
+            self.ui.statusbar.showMessage(self.app.tr(f"An error occurred: {str(e)}"))
 
     def run(self):
         self.window.show()

@@ -21,7 +21,7 @@ from PySide6.QtWidgets import (QApplication, QFrame, QGridLayout, QHBoxLayout,
     QSizePolicy, QStatusBar, QWidget)
 
 from qfluentwidgets import (CaptionLabel, CardWidget, ComboBox, LargeTitleLabel,
-    LineEdit, PushButton)
+    LineEdit, PushButton, ToolButton)
 import resources_rc
 
 class Ui_MainWindow(object):
@@ -67,8 +67,8 @@ class Ui_MainWindow(object):
         self.actionOpenDir.setIcon(icon7)
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
-        self.gridLayout_3 = QGridLayout(self.centralwidget)
-        self.gridLayout_3.setObjectName(u"gridLayout_3")
+        self.gridLayout_2 = QGridLayout(self.centralwidget)
+        self.gridLayout_2.setObjectName(u"gridLayout_2")
         self.frame_2 = CardWidget(self.centralwidget)
         self.frame_2.setObjectName(u"frame_2")
         self.frame_2.setFrameShape(QFrame.Shape.StyledPanel)
@@ -123,15 +123,73 @@ class Ui_MainWindow(object):
         self.gridLayout.addLayout(self.horizontalLayout, 1, 0, 1, 1)
 
 
-        self.gridLayout_3.addWidget(self.frame_2, 0, 0, 1, 1)
+        self.gridLayout_2.addWidget(self.frame_2, 0, 0, 1, 1)
 
         self.frame = CardWidget(self.centralwidget)
         self.frame.setObjectName(u"frame")
         self.frame.setFrameShape(QFrame.Shape.StyledPanel)
         self.frame.setFrameShadow(QFrame.Shadow.Raised)
         self.frame.setLineWidth(2)
-        self.gridLayout_2 = QGridLayout(self.frame)
-        self.gridLayout_2.setObjectName(u"gridLayout_2")
+        self.gridLayout_3 = QGridLayout(self.frame)
+        self.gridLayout_3.setObjectName(u"gridLayout_3")
+        self.optpar_Label = LargeTitleLabel(self.frame)
+        self.optpar_Label.setObjectName(u"optpar_Label")
+        sizePolicy.setHeightForWidth(self.optpar_Label.sizePolicy().hasHeightForWidth())
+        self.optpar_Label.setSizePolicy(sizePolicy)
+        self.optpar_Label.setFont(font1)
+
+        self.gridLayout_3.addWidget(self.optpar_Label, 0, 0, 1, 1)
+
+        self.horizontalLayout_2 = QHBoxLayout()
+        self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
+        self.album_Label = CaptionLabel(self.frame)
+        self.album_Label.setObjectName(u"album_Label")
+        self.album_Label.setFont(font2)
+
+        self.horizontalLayout_2.addWidget(self.album_Label)
+
+        self.album_LineEdit = LineEdit(self.frame)
+        self.album_LineEdit.setObjectName(u"album_LineEdit")
+
+        self.horizontalLayout_2.addWidget(self.album_LineEdit)
+
+        self.slpdur_Label = CaptionLabel(self.frame)
+        self.slpdur_Label.setObjectName(u"slpdur_Label")
+        self.slpdur_Label.setFont(font2)
+
+        self.horizontalLayout_2.addWidget(self.slpdur_Label)
+
+        self.slpdur_LineEdit = LineEdit(self.frame)
+        self.slpdur_LineEdit.setObjectName(u"slpdur_LineEdit")
+
+        self.horizontalLayout_2.addWidget(self.slpdur_LineEdit)
+
+
+        self.gridLayout_3.addLayout(self.horizontalLayout_2, 1, 0, 1, 1)
+
+        self.horizontalLayout_3 = QHBoxLayout()
+        self.horizontalLayout_3.setObjectName(u"horizontalLayout_3")
+        self.token_Label = CaptionLabel(self.frame)
+        self.token_Label.setObjectName(u"token_Label")
+        self.token_Label.setFont(font2)
+
+        self.horizontalLayout_3.addWidget(self.token_Label)
+
+        self.token_LineEdit = LineEdit(self.frame)
+        self.token_LineEdit.setObjectName(u"token_LineEdit")
+
+        self.horizontalLayout_3.addWidget(self.token_LineEdit)
+
+        self.refresh_pushButton = ToolButton(self.frame)
+        self.refresh_pushButton.setObjectName(u"refresh_pushButton")
+        icon8 = QIcon(QIcon.fromTheme(u"sync-synchronizing"))
+        self.refresh_pushButton.setIcon(icon8)
+
+        self.horizontalLayout_3.addWidget(self.refresh_pushButton)
+
+
+        self.gridLayout_3.addLayout(self.horizontalLayout_3, 2, 0, 1, 1)
+
         self.horizontalLayout_4 = QHBoxLayout()
         self.horizontalLayout_4.setObjectName(u"horizontalLayout_4")
         self.lrctype_Label = CaptionLabel(self.frame)
@@ -148,66 +206,15 @@ class Ui_MainWindow(object):
         self.horizontalLayout_4.addWidget(self.lrctype_comboBox)
 
 
-        self.gridLayout_2.addLayout(self.horizontalLayout_4, 3, 0, 1, 1)
-
-        self.horizontalLayout_3 = QHBoxLayout()
-        self.horizontalLayout_3.setObjectName(u"horizontalLayout_3")
-        self.token_Label = CaptionLabel(self.frame)
-        self.token_Label.setObjectName(u"token_Label")
-        self.token_Label.setFont(font2)
-
-        self.horizontalLayout_3.addWidget(self.token_Label)
-
-        self.token_LineEdit = LineEdit(self.frame)
-        self.token_LineEdit.setObjectName(u"token_LineEdit")
-
-        self.horizontalLayout_3.addWidget(self.token_LineEdit)
+        self.gridLayout_3.addLayout(self.horizontalLayout_4, 3, 0, 1, 1)
 
 
-        self.gridLayout_2.addLayout(self.horizontalLayout_3, 2, 0, 1, 1)
-
-        self.horizontalLayout_2 = QHBoxLayout()
-        self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
-        self.album_Label = CaptionLabel(self.frame)
-        self.album_Label.setObjectName(u"album_Label")
-        self.album_Label.setFont(font2)
-
-        self.horizontalLayout_2.addWidget(self.album_Label)
-
-        self.album_LineEdit = LineEdit(self.frame)
-        self.album_LineEdit.setObjectName(u"album_LineEdit")
-
-        self.horizontalLayout_2.addWidget(self.album_LineEdit)
-
-        self.duration_Label = CaptionLabel(self.frame)
-        self.duration_Label.setObjectName(u"duration_Label")
-        self.duration_Label.setFont(font2)
-
-        self.horizontalLayout_2.addWidget(self.duration_Label)
-
-        self.duration_LineEdit = LineEdit(self.frame)
-        self.duration_LineEdit.setObjectName(u"duration_LineEdit")
-
-        self.horizontalLayout_2.addWidget(self.duration_LineEdit)
-
-
-        self.gridLayout_2.addLayout(self.horizontalLayout_2, 1, 0, 1, 1)
-
-        self.optpar_Label = LargeTitleLabel(self.frame)
-        self.optpar_Label.setObjectName(u"optpar_Label")
-        sizePolicy.setHeightForWidth(self.optpar_Label.sizePolicy().hasHeightForWidth())
-        self.optpar_Label.setSizePolicy(sizePolicy)
-        self.optpar_Label.setFont(font1)
-
-        self.gridLayout_2.addWidget(self.optpar_Label, 0, 0, 1, 1)
-
-
-        self.gridLayout_3.addWidget(self.frame, 1, 0, 1, 1)
+        self.gridLayout_2.addWidget(self.frame, 1, 0, 1, 1)
 
         self.pushButton = PushButton(self.centralwidget)
         self.pushButton.setObjectName(u"pushButton")
 
-        self.gridLayout_3.addWidget(self.pushButton, 2, 0, 1, 1)
+        self.gridLayout_2.addWidget(self.pushButton, 2, 0, 1, 1)
 
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QMenuBar(MainWindow)
@@ -276,16 +283,39 @@ class Ui_MainWindow(object):
 #endif // QT_CONFIG(shortcut)
         self.reqpar_Label.setText(QCoreApplication.translate("MainWindow", u"Required parameters", None))
         self.artist_Label.setText(QCoreApplication.translate("MainWindow", u"Artist:", None))
+#if QT_CONFIG(tooltip)
+        self.artist_LineEdit.setToolTip(QCoreApplication.translate("MainWindow", u"<html><head/><body><p>Artist of the song</p></body></html>", None))
+#endif // QT_CONFIG(tooltip)
         self.artist_LineEdit.setText("")
         self.title_Label.setText(QCoreApplication.translate("MainWindow", u"Title:", None))
+#if QT_CONFIG(tooltip)
+        self.title_LineEdit.setToolTip(QCoreApplication.translate("MainWindow", u"<html><head/><body><p>Name of the song</p></body></html>", None))
+#endif // QT_CONFIG(tooltip)
+        self.optpar_Label.setText(QCoreApplication.translate("MainWindow", u"Optional parameters", None))
+        self.album_Label.setText(QCoreApplication.translate("MainWindow", u"Album:", None))
+#if QT_CONFIG(tooltip)
+        self.album_LineEdit.setToolTip(QCoreApplication.translate("MainWindow", u"<html><head/><body><p>Album of the song</p></body></html>", None))
+#endif // QT_CONFIG(tooltip)
+        self.slpdur_Label.setText(QCoreApplication.translate("MainWindow", u"Sleep:", None))
+#if QT_CONFIG(tooltip)
+        self.slpdur_LineEdit.setToolTip(QCoreApplication.translate("MainWindow", u"<html><head/><body><p>Sleep time in second during downloading multiple lyrics to avoid temporary ban from Musixmatch (Only effect Directory Mode)</p></body></html>", None))
+#endif // QT_CONFIG(tooltip)
+        self.slpdur_LineEdit.setText(QCoreApplication.translate("MainWindow", u"30", None))
+        self.token_Label.setText(QCoreApplication.translate("MainWindow", u"Token:", None))
+#if QT_CONFIG(tooltip)
+        self.token_LineEdit.setToolTip(QCoreApplication.translate("MainWindow", u"<html><head/><body><p>Your Musixmatch user token for Windows (If you don't have one, RMxLRC will generate a new one for you)</p></body></html>", None))
+#endif // QT_CONFIG(tooltip)
+#if QT_CONFIG(tooltip)
+        self.refresh_pushButton.setToolTip(QCoreApplication.translate("MainWindow", u"<html><head/><body><p>Generate new user token</p></body></html>", None))
+#endif // QT_CONFIG(tooltip)
+        self.refresh_pushButton.setText("")
         self.lrctype_Label.setText(QCoreApplication.translate("MainWindow", u"Lyric Type:", None))
         self.lrctype_comboBox.setItemText(0, QCoreApplication.translate("MainWindow", u"Synced", None))
         self.lrctype_comboBox.setItemText(1, QCoreApplication.translate("MainWindow", u"Unsynced", None))
 
-        self.token_Label.setText(QCoreApplication.translate("MainWindow", u"Token:", None))
-        self.album_Label.setText(QCoreApplication.translate("MainWindow", u"Album:", None))
-        self.duration_Label.setText(QCoreApplication.translate("MainWindow", u"Duration:", None))
-        self.optpar_Label.setText(QCoreApplication.translate("MainWindow", u"Optional parameters", None))
+#if QT_CONFIG(tooltip)
+        self.pushButton.setToolTip(QCoreApplication.translate("MainWindow", u"<html><head/><body><p>Download lyric from Musixmatch</p></body></html>", None))
+#endif // QT_CONFIG(tooltip)
         self.pushButton.setText(QCoreApplication.translate("MainWindow", u"Download", None))
         self.menuFile.setTitle(QCoreApplication.translate("MainWindow", u"File", None))
         self.menuEdit.setTitle(QCoreApplication.translate("MainWindow", u"Edit", None))
