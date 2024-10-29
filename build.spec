@@ -2,10 +2,10 @@
 
 
 a = Analysis(
-    ['main.py'],
+    ['uiproc.py'],
     pathex=[],
     binaries=[],
-    datas=[('getlrc.py', '.')],
+    datas=[('getlrc.py', '.'), ('mainwin.py', '.')],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
@@ -21,7 +21,7 @@ exe = EXE(
     a.binaries,
     a.datas,
     [],
-    name='RMxLRC_CLI_Windows_x64.exe',
+    name='RMxLRC_GUI_Windows_x64.exe',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
@@ -35,5 +35,5 @@ exe = EXE(
     codesign_identity=None,
     entitlements_file=None,
     icon=['icon.png'],
-	version='version_cli.rc',
+	version='version_gui.rc',
 )
