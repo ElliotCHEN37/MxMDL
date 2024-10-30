@@ -1,7 +1,6 @@
 import os
 import requests
 import json
-import argparse
 from datetime import timedelta
 import time
 import tinytag
@@ -143,35 +142,3 @@ def read_audio(ui, app):
                                  app.tr(f"Failed to read audio file: {str(e)}"))
     else:
         ui.statusbar.showMessage(app.tr("No audio file selected"))
-
-
-def main():
-    parser = argparse.ArgumentParser(description="RMxLRC Command Line Version By ElliotCHEN37.")
-    parser.add_argument("-m", "--album", help="Album name")
-    parser.add_argument("-a", "--artist", required=True, help="Artist name")
-    parser.add_argument("-n", "--title", required=True, help="Track title")
-    parser.add_argument("-t", "--token", help="Musixmatch user token")
-    parser.add_argument("-y", "--lyrics-type", choices=["synced", "unsynced"], default="synced",
-                        help="Type of lyrics to download")
-
-    args = parser.parse_args()
-    info = {"album": args.album, "artist": args.artist, "title": args.title}
-
-    provider = MusixmatchProvider(token=args.token)
-    lyrics_data = provider.find_lyrics(info)
-
-    if lyrics_data:
-        filename = f"{args.artist} - {args.title}.lrc"
-        lyrics = provider.get_lyrics_data(lyrics_data, lrctype=args.lyrics_type)
-
-        if lyrics:
-            write_to_lrc(filename, lyrics, synced=(args.lyrics_type == "synced"))
-            print(f"LRC file '{filename}' created with {args.lyrics_type} lyrics.")
-        else:
-            print("No lyrics found.")
-    else:
-        print("Lyrics not found.")
-
-
-if __name__ == "__main__":
-    main()
