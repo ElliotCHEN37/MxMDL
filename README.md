@@ -28,6 +28,7 @@ Open your terminal and run the following commands<br>
 #### Build
 `pip install -r requirements.txt`<br>
 `pip install pyinstaller`<br>
+`cd Source`<br>
 `pyinstaller build.spec`<br>
 
 ## License
