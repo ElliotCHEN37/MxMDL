@@ -1,5 +1,5 @@
 # RMxLRC
-> Last build time: 2024/10/29, 22:50 (UTC+8) | Latest version: [v1.0](https://github.com/ElliotCHEN37/RMxLRC/releases/latest)
+> Last build time: 2024/11/2, 10:47:05 (UTC+8) | Latest version: [v1.1](https://github.com/ElliotCHEN37/RMxLRC/releases/latest)
 
 ## Feature
 - Download lyrics you want from Musixmatch freely
