@@ -137,6 +137,19 @@ SOFTWARE.
                 self.token = new_token
                 self.ui.token_LineEdit.setText(new_token)
                 self.ui.statusbar.showMessage(self.app.tr("Token refreshed successfully."))
+                try:
+                    with open("config.json", "r") as f:
+                        config = json.load(f)
+
+                    config["token"] = new_token
+
+                    with open("config.json", "w") as f:
+                        json.dump(config, f, indent=3)
+
+                except Exception as e:
+                    QMessageBox.critical(self.window, self.app.tr("Error"),
+                                         self.app.tr(f"Failed to update config: {str(e)}"))
+
             else:
                 self.ui.statusbar.showMessage(self.app.tr("Failed to refresh token."))
         except Exception as e:
