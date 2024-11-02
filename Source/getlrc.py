@@ -10,8 +10,11 @@ from PySide6.QtWidgets import QMessageBox, QFileDialog
 class MusixmatchProvider:
     def __init__(self, token=None):
         self.base_url = "https://apic-desktop.musixmatch.com/ws/1.1"
-        self.headers = {"authority": "apic-desktop.musixmatch.com", "cookie": "x-mxm-token-guid="}
-        self.token = token or self.refresh_token()
+        self.headers = {
+            "authority": "apic-desktop.musixmatch.com",
+            "cookie": "x-mxm-token-guid="
+        }
+        self.token = token or self.refresh_token
 
     def refresh_token(self, ui):
         response = requests.get(f"{self.base_url}/token.get?app_id=web-desktop-app-v1.0", headers=self.headers)
@@ -43,9 +46,8 @@ class MusixmatchProvider:
     def get_lyrics_data(body, lrctype="synced"):
         if lrctype == "synced":
             subtitle = \
-                body.get("track.subtitles.get", {}).get("message", {}).get("body", {}).get("subtitle_list", [{}])[
-                    0].get(
-                    "subtitle", {})
+            body.get("track.subtitles.get", {}).get("message", {}).get("body", {}).get("subtitle_list", [{}])[0].get(
+                "subtitle", {})
             return [
                 {"text": line["text"] or "♪", "startTime": line["time"]["total"] * 1000}
                 for line in json.loads(subtitle.get("subtitle_body", "[]"))
@@ -126,10 +128,11 @@ def dir_mode(ui, token, directory, interval):
 
 
 def read_audio(ui, app):
-    file_path, _ = QFileDialog.getOpenFileName(caption=app.tr("Open Audio File"),
-                                               filter=app.tr("Supported Audio Files (*.aiff *.aif *.aifc *.wma"
-                                                             " *.flac *.opus *.ogg *.wav *.m4a *.mp3 *.mp2 "
-                                                             "*.mp1)"))
+    file_path, _ = QFileDialog.getOpenFileName(
+        caption=app.tr("Open Audio File"),
+        filter=app.tr(
+            "Supported Audio Files (*.aiff *.aif *.aifc *.wma *.flac *.opus *.ogg *.wav *.m4a *.mp3 *.mp2 *.mp1)")
+    )
     if file_path:
         try:
             ui.statusbar.showMessage(app.tr(f"Selected audio file: {file_path}"))
@@ -138,7 +141,6 @@ def read_audio(ui, app):
             ui.title_LineEdit.setText(tag.title)
             ui.album_LineEdit.setText(tag.album)
         except Exception as e:
-            QMessageBox.critical(ui.window, app.tr("Error"),
-                                 app.tr(f"Failed to read audio file: {str(e)}"))
+            QMessageBox.critical(ui.window, app.tr("Error"), app.tr(f"Failed to read audio file: {str(e)}"))
     else:
         ui.statusbar.showMessage(app.tr("No audio file selected"))

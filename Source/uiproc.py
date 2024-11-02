@@ -11,16 +11,22 @@ from getlrc import download_lyrics, dir_mode, read_audio, MusixmatchProvider
 
 class MainWindow:
     def __init__(self):
-        self.vernum = "v1.0"
-
+        self.vernum = "v1.1"
         self.config = self.load_config()
         self.token = self.config.get("token", "")
         self.trans_file = self.config.get("trans", "")
 
         self.app = QApplication(sys.argv)
+        self.setup_translator()
+        self.setup_ui()
+        self.setup_connections()
+
+    def setup_translator(self):
         trans = QTranslator()
         trans.load(self.trans_file)
         self.app.installTranslator(trans)
+
+    def setup_ui(self):
         self.app.setStyle('windowsvista')
         self.window = QMainWindow()
         self.ui = Ui_MainWindow()
@@ -32,6 +38,7 @@ class MainWindow:
         if self.token:
             self.ui.token_LineEdit.setText(self.token)
 
+    def setup_connections(self):
         self.ui.pushButton.clicked.connect(self.download_lyrics)
         self.ui.actionAbout.triggered.connect(self.about_message)
         self.ui.actionLicense.triggered.connect(self.license_message)
@@ -48,9 +55,7 @@ class MainWindow:
         title = self.ui.title_LineEdit.text()
         album = self.ui.album_LineEdit.text() or None
         token = self.ui.token_LineEdit.text() or None
-
-        lrctype_index = self.ui.lrctype_comboBox.currentIndex()
-        lrctype = "synced" if lrctype_index == 0 else "unsynced"
+        lrctype = "synced" if self.ui.lrctype_comboBox.currentIndex() == 0 else "unsynced"
 
         download_lyrics(self.ui, token, artist, title, album, lrctype)
 
@@ -58,14 +63,12 @@ class MainWindow:
         directory = QFileDialog.getExistingDirectory(self.window, self.app.tr("Select Directory"))
         if not directory:
             return
-
         try:
             interval = int(self.ui.slpdur_LineEdit.text())
         except ValueError:
             QMessageBox.warning(self.window, self.app.tr("Input Error"),
                                 self.app.tr("Please enter a valid number for the time interval."))
             return
-
         dir_mode(self.ui, self.token, directory, interval)
 
     def about_message(self):
@@ -113,10 +116,7 @@ SOFTWARE.
     def load_config(self):
         try:
             if not os.path.exists("config.json"):
-                default_config = {
-                    "token": "",
-                    "trans": ""
-                }
+                default_config = {"token": "", "trans": ""}
                 with open("config.json", "w") as f:
                     json.dump(default_config, f, indent=3)
 
@@ -137,23 +137,22 @@ SOFTWARE.
                 self.token = new_token
                 self.ui.token_LineEdit.setText(new_token)
                 self.ui.statusbar.showMessage(self.app.tr("Token refreshed successfully."))
-                try:
-                    with open("config.json", "r") as f:
-                        config = json.load(f)
-
-                    config["token"] = new_token
-
-                    with open("config.json", "w") as f:
-                        json.dump(config, f, indent=3)
-
-                except Exception as e:
-                    QMessageBox.critical(self.window, self.app.tr("Error"),
-                                         self.app.tr(f"Failed to update config: {str(e)}"))
-
+                self.update_config(new_token)
             else:
                 self.ui.statusbar.showMessage(self.app.tr("Failed to refresh token."))
         except Exception as e:
             self.ui.statusbar.showMessage(self.app.tr(f"An error occurred: {str(e)}"))
+
+    def update_config(self, new_token):
+        try:
+            with open("config.json", "r") as f:
+                config = json.load(f)
+            config["token"] = new_token
+            with open("config.json", "w") as f:
+                json.dump(config, f, indent=3)
+        except Exception as e:
+            QMessageBox.critical(self.window, self.app.tr("Error"),
+                                 self.app.tr(f"Failed to update config: {str(e)}"))
 
     def run(self):
         self.window.show()
