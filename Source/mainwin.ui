@@ -7,8 +7,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>494</width>
-    <height>461</height>
+    <width>510</width>
+    <height>418</height>
    </rect>
   </property>
   <property name="font">
@@ -277,7 +277,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>494</width>
+     <width>510</width>
      <height>33</height>
     </rect>
    </property>
@@ -287,8 +287,6 @@
     </property>
     <addaction name="actionOpen_Audio_File"/>
     <addaction name="actionOpenDir"/>
-    <addaction name="separator"/>
-    <addaction name="actionReadGenConfig"/>
     <addaction name="separator"/>
     <addaction name="actionExit"/>
    </widget>

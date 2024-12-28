@@ -6,62 +6,57 @@ from datetime import timedelta
 from tinytag import TinyTag
 import time
 
-class MusixmatchProvider:
-    BASE_URL = "https://apic-desktop.musixmatch.com/ws/1.1"
+BASE_URL = "https://apic-desktop.musixmatch.com/ws/1.1"
 
-    def __init__(self, token=None):
-        self.token = token or self.refresh_token()
+def refresh_token():
+    try:
+        print("Obtaining token...")
+        response = requests.get(f"{BASE_URL}/token.get?app_id=web-desktop-app-v1.0")
+        response.raise_for_status()
+        token = response.json().get("message", {}).get("body", {}).get("user_token")
+        print(f"Token obtained: {token}")
+        return token
+    except requests.RequestException as e:
+        print(f"Error obtaining token: {e}")
+        return None
 
-    def refresh_token(self):
-        try:
-            print("Obtaining token...")
-            response = requests.get(f"{self.BASE_URL}/token.get?app_id=web-desktop-app-v1.0")
-            response.raise_for_status()
-            self.token = response.json().get("message", {}).get("body", {}).get("user_token")
-            print(f"Token obtained: {self.token}")
-            return self.token
-        except requests.RequestException as e:
-            print(f"Error obtaining token: {e}")
-            return None
+def find_lyrics(token, artist, title, album=None):
+    params = {
+        "format": "json",
+        "namespace": "lyrics_richsynched",
+        "subtitle_format": "mxm",
+        "app_id": "web-desktop-app-v1.0",
+        "q_artist": artist,
+        "q_track": title,
+        "usertoken": token
+    }
+    if album:
+        params["q_album"] = album
 
-    def find_lyrics(self, artist, title, album=None):
-        params = {
-            "format": "json",
-            "namespace": "lyrics_richsynched",
-            "subtitle_format": "mxm",
-            "app_id": "web-desktop-app-v1.0",
-            "q_artist": artist,
-            "q_track": title,
-            "usertoken": self.token
-        }
-        if album:
-            params["q_album"] = album
+    try:
+        print("Finding lyrics...")
+        response = requests.get(f"{BASE_URL}/macro.subtitles.get", params=params)
+        response.raise_for_status()
+        return response.json().get("message", {}).get("body", {}).get("macro_calls", {})
+    except requests.RequestException as e:
+        print(f"Error finding lyrics: {e}")
+        return None
 
-        try:
-            print("Finding lyrics...")
-            response = requests.get(f"{self.BASE_URL}/macro.subtitles.get", params=params)
-            response.raise_for_status()
-            return response.json().get("message", {}).get("body", {}).get("macro_calls", {})
-        except requests.RequestException as e:
-            print(f"Error finding lyrics: {e}")
-            return None
+def parse_lyrics(body, lrctype="synced"):
+    try:
+        print("Downloading lyrics...")
+        if lrctype == "synced":
+            subtitle = body.get("track.subtitles.get", {}).get("message", {}).get("body", {}).get("subtitle_list", [{}])[0].get("subtitle", {})
+            return [
+                {"text": line["text"] or "♪", "startTime": line["time"]["total"] * 1000}
+                for line in json.loads(subtitle.get("subtitle_body", "[]"))
+            ] if subtitle else None
 
-    @staticmethod
-    def parse_lyrics(body, lrctype="synced"):
-        try:
-            print("Downloading lyrics...")
-            if lrctype == "synced":
-                subtitle = body.get("track.subtitles.get", {}).get("message", {}).get("body", {}).get("subtitle_list", [{}])[0].get("subtitle", {})
-                return [
-                    {"text": line["text"] or "♪", "startTime": line["time"]["total"] * 1000}
-                    for line in json.loads(subtitle.get("subtitle_body", "[]"))
-                ] if subtitle else None
-
-            lyrics_body = body.get("track.lyrics.get", {}).get("message", {}).get("body", {}).get("lyrics", {}).get("lyrics_body")
-            return [{"text": line} for line in lyrics_body.split("\n") if line] if lyrics_body else None
-        except (KeyError, json.JSONDecodeError) as e:
-            print(f"Error parsing lyrics: {e}")
-            return None
+        lyrics_body = body.get("track.lyrics.get", {}).get("message", {}).get("body", {}).get("lyrics", {}).get("lyrics_body")
+        return [{"text": line} for line in lyrics_body.split("\n") if line] if lyrics_body else None
+    except (KeyError, json.JSONDecodeError) as e:
+        print(f"Error parsing lyrics: {e}")
+        return None
 
 def format_time(milliseconds):
     print("Formatting time...")
@@ -131,19 +126,17 @@ def process_directory(token, directory, lrctype="synced", sleep_time=0):
             print(reason)
 
 def download_lyrics(token, artist, title, album=None, lrctype="synced", output_path=None):
-    provider = MusixmatchProvider(token=token)
-
-    if not provider.token:
+    if not token:
         print("Failed to obtain a valid token.")
         return
 
-    lyrics_data = provider.find_lyrics(artist, title, album)
+    lyrics_data = find_lyrics(token, artist, title, album)
 
     if not lyrics_data:
         print(f"Lyrics not found for {title} by {artist}.")
         return
 
-    lyrics = provider.parse_lyrics(lyrics_data, lrctype=lrctype)
+    lyrics = parse_lyrics(lyrics_data, lrctype=lrctype)
 
     if not lyrics:
         print(f"No lyrics found for {title} by {artist}.")
@@ -154,7 +147,7 @@ def download_lyrics(token, artist, title, album=None, lrctype="synced", output_p
     print(f"LRC file '{filename}' saved with {lrctype} lyrics.")
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="RMxLRC CLI v1.0 by ElliotCHEN37. Download synced lyrics from Musixmatch freely!")
+    parser = argparse.ArgumentParser(description="RMxLRC CLI v1.1 by ElliotCHEN37. Download synced lyrics from Musixmatch freely!")
     parser.add_argument("--gettk", action="store_true", help="Retrieve a new Musixmatch API token")
     parser.add_argument("--token", help="Musixmatch API token")
     parser.add_argument("--artist", help="Artist name")
@@ -163,24 +156,38 @@ if __name__ == "__main__":
     parser.add_argument("--lrctype", choices=["synced", "unsynced"], default="synced", help="Lyrics type (default: synced)")
     parser.add_argument("--dir", help="Directory containing audio files")
     parser.add_argument("--slp", type=int, default=30, help="Seconds to wait between downloads (default: 30)")
+    parser.add_argument("--chlog", action="store_true", help="View changelog")
 
     args = parser.parse_args()
 
     if args.gettk:
-        token = MusixmatchProvider().refresh_token()
+        token = refresh_token()
         if token:
             print(f"New token obtained: {token}")
         else:
             print("Failed to obtain a new token.")
+    elif args.chlog:
+        print(f"""Visit GitHub repository to get more detailed changes!
+https://github.com/ElliotCHEN37/RMxLRC/commits/main/
+CHANGELOG:
+v1.1
+FIX:
+    1. Obtain token multiple times.
+NEW:
+    1. Use --chlog to view changelog
+OPT:
+    1. Adjust code structure.
+v1.0
+Initial Release""")
     elif args.dir:
-        token = args.token or MusixmatchProvider().refresh_token()
+        token = args.token or refresh_token()
         if not token:
             print("Failed to obtain a valid token.")
         else:
             process_directory(token, args.dir, lrctype=args.lrctype, sleep_time=args.slp)
     elif args.artist and args.title:
         download_lyrics(
-            token=args.token or MusixmatchProvider().refresh_token(),
+            token=args.token or refresh_token(),
             artist=args.artist,
             title=args.title,
             album=args.album,
