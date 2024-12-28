@@ -1,5 +1,5 @@
 # RMxLRC
-> Latest version: [v1.0](https://github.com/ElliotCHEN37/RMxLRC/releases/latest)
+> Latest version: [v1.1](https://github.com/ElliotCHEN37/RMxLRC/releases/latest)
 
 ## Feature
 - Download lyrics you want from Musixmatch freely
