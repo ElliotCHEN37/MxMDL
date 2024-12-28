@@ -15,7 +15,7 @@ Open your terminal and run the following commands<br>
 #### Clone
 `cd <path to somewhere>`<br>
 `git clone https://github.com/ElliotCHEN37/RMxLRC.git`<Br>
-`cd RMxLRC`<br>
+`cd RMxLRC\Source`<br>
 #### Build
 `pip install -r requirements.txt`<br>
 `pip install pyinstaller`<br>
