@@ -7,15 +7,6 @@
 - Directory mode for multiple songs
 - More...
 
-## Config
-Config file should be named as `config.json`
-```json
-{
-  "token": "Your Mxm User Token (You can leave it blank)",
-  "trans": "Locale file (Leave it blank if you don't want to use it)"
-}
-```
-
 ## Build
 > [!CAUTION]
 > For Windows only!
