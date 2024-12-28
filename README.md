@@ -17,7 +17,7 @@ Open your terminal and run the following commands<br>
 `pip install -r requirements.txt`<br>
 `pip install pyinstaller`<br>
 `pyinstaller ./Source/build_<sys>.spec`<br>
-> Replace <sys> with your os
+> Replace \<sys\> with your os
 
 ## License
 [The MIT License](LICENSE.txt)
