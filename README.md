@@ -1,5 +1,5 @@
 # RMxLRC
-> Latest version: [v1.1](https://github.com/ElliotCHEN37/RMxLRC/releases/latest)
+> Latest version: [v1.0](https://github.com/ElliotCHEN37/RMxLRC/releases/latest)
 
 ## Feature
 - Download lyrics you want from Musixmatch freely
@@ -8,23 +8,16 @@
 - More...
 
 ## Build
-> [!CAUTION]
-> For Windows only!
-
 Open your terminal and run the following commands<br>
 #### Clone
 `cd <path to somewhere>`<br>
 `git clone https://github.com/ElliotCHEN37/RMxLRC.git`<Br>
-`cd RMxLRC\Source`<br>
+`cd ./RMxLRC/Source`<br>
 #### Build
 `pip install -r requirements.txt`<br>
 `pip install pyinstaller`<br>
-`cd Source`<br>
-`pyinstaller build.spec`<br>
+`pyinstaller ./Source/build_<sys>.spec`<br>
+> Replace <sys> with your os
 
 ## License
 [The MIT License](LICENSE.txt)
-
-## Used Projects
-- [QFluentWidgets](https://qfluentwidgets.com/)
-- PySide6
