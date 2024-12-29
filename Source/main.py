@@ -37,7 +37,13 @@ def find_lyrics(token, artist, title, album=None):
         print("Finding lyrics...")
         response = requests.get(f"{BASE_URL}/macro.subtitles.get", params=params)
         response.raise_for_status()
-        return response.json().get("message", {}).get("body", {}).get("macro_calls", {})
+        body = response.json().get("message", {}).get("body", {}).get("macro_calls", {})
+        instrumental = body.get("track.lyrics.get", {}).get("message", {}).get("body", {}).get("lyrics", {}).get("instrumental")
+        if instrumental:
+            print(f"The song '{title}' by '{artist}' is instrumental.")
+            return {"instrumental": True}
+
+        return body
     except requests.RequestException as e:
         print(f"Error finding lyrics: {e}")
         return None
@@ -45,6 +51,9 @@ def find_lyrics(token, artist, title, album=None):
 def parse_lyrics(body, lrctype="synced"):
     try:
         print("Downloading lyrics...")
+        if body.get("instrumental"):
+            return None
+
         if lrctype == "synced":
             subtitle = body.get("track.subtitles.get", {}).get("message", {}).get("body", {}).get("subtitle_list", [{}])[0].get("subtitle", {})
             return [
@@ -91,7 +100,8 @@ def process_directory(token, directory, lrctype="synced", sleep_time=0):
     for root, _, files in os.walk(directory):
         print(f'Scanning "{directory}"...')
         for file in files:
-            if file.lower().endswith(('.mp1', '.mp2', '.mp3', '.m4a', '.aac', '.wav', '.ogg', '.flac', '.wma', '.aiff', '.aif')):
+            if file.lower().endswith((
+                '.mp1', '.mp2', '.mp3', '.m4a', '.aac', '.wav', '.ogg', '.flac', '.wma', '.aiff', '.aif')):
                 file_path = os.path.join(root, file)
                 print(f'Processing "{file}"...')
                 metadata = extract_metadata(file_path)
@@ -136,6 +146,10 @@ def download_lyrics(token, artist, title, album=None, lrctype="synced", output_p
         print(f"Lyrics not found for {title} by {artist}.")
         return
 
+    if lyrics_data.get("instrumental"):
+        print(f"The song '{title}' by '{artist}' is instrumental. Skipping lyrics download.")
+        return
+
     lyrics = parse_lyrics(lyrics_data, lrctype=lrctype)
 
     if not lyrics:
@@ -174,6 +188,8 @@ CHANGELOG:
 v1.2
 NEW:
     1. Add support for direct file input.
+FIX:
+    1. Error when downloading Instrumental songs.
 v1.1
 FIX:
     1. Obtain token multiple times.
