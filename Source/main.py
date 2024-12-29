@@ -147,7 +147,7 @@ def download_lyrics(token, artist, title, album=None, lrctype="synced", output_p
     print(f"LRC file '{filename}' saved with {lrctype} lyrics.")
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="RMxLRC CLI v1.1 by ElliotCHEN37. Download synced lyrics from Musixmatch freely!")
+    parser = argparse.ArgumentParser(description="RMxLRC CLI v1.2 by ElliotCHEN37. Download synced lyrics from Musixmatch freely!")
     parser.add_argument("--gettk", action="store_true", help="Retrieve a new Musixmatch API token")
     parser.add_argument("--token", help="Musixmatch API token")
     parser.add_argument("--artist", help="Artist name")
@@ -157,6 +157,7 @@ if __name__ == "__main__":
     parser.add_argument("--dir", help="Directory containing audio files")
     parser.add_argument("--slp", type=int, default=30, help="Seconds to wait between downloads (default: 30)")
     parser.add_argument("--chlog", action="store_true", help="View changelog")
+    parser.add_argument("filepath", nargs="?", help="Path to an audio file")
 
     args = parser.parse_args()
 
@@ -170,15 +171,43 @@ if __name__ == "__main__":
         print(f"""Visit GitHub repository to get more detailed changes!
 https://github.com/ElliotCHEN37/RMxLRC/commits/main/
 CHANGELOG:
+v1.2
+NEW:
+    1. Add support for direct file input.
 v1.1
 FIX:
     1. Obtain token multiple times.
 NEW:
-    1. Use --chlog to view changelog
+    1. Use --chlog to view changelog.
 OPT:
     1. Adjust code structure.
 v1.0
 Initial Release""")
+    elif args.filepath:
+        token = args.token or refresh_token()
+        if not token:
+            print("Failed to obtain a valid token.")
+        else:
+            metadata = extract_metadata(args.filepath)
+            if not metadata:
+                print(f"Failed to extract metadata from file: {args.filepath}")
+            else:
+                artist = metadata.get("artist")
+                title = metadata.get("title")
+                album = metadata.get("album")
+
+                if not artist or not title:
+                    print(f"Incomplete metadata for file: {args.filepath}. Artist and title are required.")
+                else:
+                    print(f"Downloading lyrics for '{title}' by '{artist}'...")
+                    download_lyrics(
+                        token=token,
+                        artist=artist,
+                        title=title,
+                        album=album,
+                        lrctype=args.lrctype,
+                        output_path=os.path.splitext(args.filepath)[0] + ".lrc"
+                    )
     elif args.dir:
         token = args.token or refresh_token()
         if not token:
