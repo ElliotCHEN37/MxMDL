@@ -1,11 +1,21 @@
-# RMxLRC
+# MxMDL
 > Latest version: [v1.2](https://github.com/ElliotCHEN37/RMxLRC/releases/latest)
 
-## Feature
-- Download lyrics you want from Musixmatch freely
-- Auto-generate or refresh your token
-- Directory mode for multiple songs
-- More...
+## Changelog
+v1.2
+NEW:
+    1. Add support for direct file input.
+FIX:
+    1. Error when downloading Instrumental songs.
+v1.1
+FIX:
+    1. Obtain token multiple times.
+NEW:
+    1. Use --chlog to view changelog.
+OPT:
+    1. Adjust code structure.
+v1.0
+Initial Release
 
 ## Build
 Open your terminal and run the following commands<br>
