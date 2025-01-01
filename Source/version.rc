@@ -1,7 +1,7 @@
 VSVersionInfo(
   ffi=FixedFileInfo(
     filevers=(1, 0, 0, 0),
-    prodvers=(1, 2, 0, 0),
+    prodvers=(1, 3, 0, 0),
     mask=0x3f,
     flags=0x0,
     OS=0x40004,
@@ -15,13 +15,13 @@ VSVersionInfo(
       StringTable(
         u'040904B0',
         [StringStruct(u'CompanyName', u'ElliotCHEN37'),
-        StringStruct(u'FileDescription', u'RMxLRC'),
+        StringStruct(u'FileDescription', u'Download synced lyrics from Musixmatch freely!'),
         StringStruct(u'FileVersion', u'1.0'),
-        StringStruct(u'InternalName', u'RMxLRC'),
+        StringStruct(u'InternalName', u'MxMDL'),
         StringStruct(u'LegalCopyright', u'\xa9 ElliotCHEN37 2024 Licensed under MIT License'),
-        StringStruct(u'OriginalFilename', u'RMxLRC_Windows_x64.exe'),
-        StringStruct(u'ProductName', u'RMxLRC'),
-        StringStruct(u'ProductVersion', u'1.2')])
+        StringStruct(u'OriginalFilename', u'MxMDL_Windows_x64.exe'),
+        StringStruct(u'ProductName', u'MxMDL'),
+        StringStruct(u'ProductVersion', u'1.3')])
       ]), 
     VarFileInfo([VarStruct(u'Translation', [1033, 1200])])
   ]

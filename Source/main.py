@@ -7,6 +7,7 @@ from tinytag import TinyTag
 import time
 
 BASE_URL = "https://apic-desktop.musixmatch.com/ws/1.1"
+APPVER = "1.3"
 
 def refresh_token():
     try:
@@ -161,44 +162,25 @@ def download_lyrics(token, artist, title, album=None, lrctype="synced", output_p
     print(f"LRC file '{filename}' saved with {lrctype} lyrics.")
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="RMxLRC CLI v1.2 by ElliotCHEN37. Download synced lyrics from Musixmatch freely!")
-    parser.add_argument("--gettk", action="store_true", help="Retrieve a new Musixmatch API token")
-    parser.add_argument("--token", help="Musixmatch API token")
-    parser.add_argument("--artist", help="Artist name")
-    parser.add_argument("--title", help="Track title")
-    parser.add_argument("--album", help="Album name (optional)")
+    parser = argparse.ArgumentParser(description=f"MxMDL v{APPVER} by ElliotCHEN37. Download synced lyrics from Musixmatch freely!")
+    parser.add_argument("-g", "--get_token", action="store_true", help="Retrieve a new Musixmatch API token")
+    parser.add_argument("-k", "--token", help="Musixmatch API token")
+    parser.add_argument("-a", "--artist", required=True, help="Artist name")
+    parser.add_argument("-t", "--title", required=True, help="Track title")
+    parser.add_argument("-l", "--album", help="Album name (optional)")
     parser.add_argument("--lrctype", choices=["synced", "unsynced"], default="synced", help="Lyrics type (default: synced)")
-    parser.add_argument("--dir", help="Directory containing audio files")
-    parser.add_argument("--slp", type=int, default=30, help="Seconds to wait between downloads (default: 30)")
-    parser.add_argument("--chlog", action="store_true", help="View changelog")
+    parser.add_argument("-d", "--directory", help="Directory containing audio files")
+    parser.add_argument("-s", "--sleep", type=int, default=30, help="Seconds to wait between downloads (default: 30)")
     parser.add_argument("filepath", nargs="?", help="Path to an audio file")
 
     args = parser.parse_args()
 
-    if args.gettk:
+    if args.get_token:
         token = refresh_token()
         if token:
             print(f"New token obtained: {token}")
         else:
             print("Failed to obtain a new token.")
-    elif args.chlog:
-        print(f"""Visit GitHub repository to get more detailed changes!
-https://github.com/ElliotCHEN37/RMxLRC/commits/main/
-CHANGELOG:
-v1.2
-NEW:
-    1. Add support for direct file input.
-FIX:
-    1. Error when downloading Instrumental songs.
-v1.1
-FIX:
-    1. Obtain token multiple times.
-NEW:
-    1. Use --chlog to view changelog.
-OPT:
-    1. Adjust code structure.
-v1.0
-Initial Release""")
     elif args.filepath:
         token = args.token or refresh_token()
         if not token:
@@ -224,7 +206,7 @@ Initial Release""")
                         lrctype=args.lrctype,
                         output_path=os.path.splitext(args.filepath)[0] + ".lrc"
                     )
-    elif args.dir:
+    elif args.directory:
         token = args.token or refresh_token()
         if not token:
             print("Failed to obtain a valid token.")
