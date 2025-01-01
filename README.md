@@ -1,10 +1,40 @@
 # MxMDL
-> Latest version: [v1.2](https://github.com/ElliotCHEN37/RMxLRC/releases/latest)
+> Latest version: [v1.3](https://github.com/ElliotCHEN37/RMxLRC/releases/latest)
 
-# History
+## History
 The project was gradually derived from GMxLRC.<br>
 GMxLRC was designed to provide a GUI interface for MxLRC. Over time GMxLRC was rewritten and renamed RMxLRC. However, RMxLRC still requires MxLRC as a dependency.<br>
 Now, MxMDL is a new beginning. It can work independently without MxLRC and has richer functions than MxLRC!<br>
+
+## Usage
+```
+usage: main.py [-h] [-g] [-k TOKEN] [-a ARTIST] [-t TITLE] [-l ALBUM]
+               [--lrctype {synced,unsynced}] [-d DIRECTORY] [-s SLEEP]
+               [filepath]
+
+MxMDL v1.3 by ElliotCHEN37. Download synced lyrics from Musixmatch freely!
+
+positional arguments:
+  filepath              Path to an audio file
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -g, --get_token       Retrieve a new Musixmatch API token
+  -k TOKEN, --token TOKEN
+                        Musixmatch API token
+  -a ARTIST, --artist ARTIST
+                        Artist name
+  -t TITLE, --title TITLE
+                        Track title
+  -l ALBUM, --album ALBUM
+                        Album name (optional)
+  --lrctype {synced,unsynced}
+                        Lyrics type (default: synced)
+  -d DIRECTORY, --directory DIRECTORY
+                        Directory containing audio files
+  -s SLEEP, --sleep SLEEP
+                        Seconds to wait between downloads (default: 30)
+```
 
 ## Changelog
 <h3>v1.3</h3>
