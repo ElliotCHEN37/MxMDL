@@ -1,21 +1,30 @@
 # MxMDL
 > Latest version: [v1.2](https://github.com/ElliotCHEN37/RMxLRC/releases/latest)
 
+# History
+The project was gradually derived from GMxLRC.<br>
+GMxLRC was designed to provide a GUI interface for MxLRC. Over time GMxLRC was rewritten and renamed RMxLRC. However, RMxLRC still requires MxLRC as a dependency.<br>
+Now, MxMDL is a new beginning. It can work independently without MxLRC and has richer functions than MxLRC!<br>
+
 ## Changelog
 v1.2
-NEW:
-    1. Add support for direct file input.
-FIX:
+NEW:<br>
+    1. Add support for direct file input.<br>
+FIX:<br>
     1. Error when downloading Instrumental songs.
-v1.1
-FIX:
-    1. Obtain token multiple times.
-NEW:
-    1. Use --chlog to view changelog.
-OPT:
-    1. Adjust code structure.
-v1.0
-Initial Release
+<details>
+    <summary>v1.1</summary>
+    FIX:<br>
+        1. Obtain token multiple times.<br>
+    NEW:<br>
+        1. Use --chlog to view changelog.<br>
+    OPT:<br>
+        1. Adjust code structure.
+</details>
+<details>
+    <summary>v1.0</summary>
+    Initial Release
+</details>
 
 ## Build
 Open your terminal and run the following commands<br>
