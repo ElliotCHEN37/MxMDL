@@ -13,7 +13,7 @@ NEW:<br>
 FIX:<br>
     1. Error when downloading Instrumental songs.
 <details>
-    <summary>v1.1</summary>
+    <summary><h4>v1.1</h4></summary>
     FIX:<br>
         1. Obtain token multiple times.<br>
     NEW:<br>
@@ -22,7 +22,7 @@ FIX:<br>
         1. Adjust code structure.
 </details>
 <details>
-    <summary>v1.0</summary>
+    <summary><h4>v1.0</h4></summary>
     Initial Release
 </details>
 
