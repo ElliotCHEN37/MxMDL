@@ -7,11 +7,19 @@ GMxLRC was designed to provide a GUI interface for MxLRC. Over time GMxLRC was r
 Now, MxMDL is a new beginning. It can work independently without MxLRC and has richer functions than MxLRC!<br>
 
 ## Changelog
-v1.2
+<h3>v1.3</h3>
 NEW:<br>
-    1. Add support for direct file input.<br>
-FIX:<br>
-    1. Error when downloading Instrumental songs.
+    1. Using "♪ Instrumental ♪" for instrumental songs<br>
+    2. Output type<br>
+OPT:<br>
+    1. Adjust arguments<br>
+<details>
+    <summary><h3>v1.2</h3></summary>
+    NEW:<br>
+        1. Add support for direct file input.<br>
+    FIX:<br>
+        1. Error when downloading Instrumental songs.
+</details>
 <details>
     <summary><h3>v1.1</h3></summary>
     FIX:<br>
