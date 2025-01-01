@@ -22,7 +22,7 @@ exe = EXE(
     a.binaries,
     a.datas,
     [],
-    name='RMxLRC_Linux_x64',
+    name='MxMDL_Linux_x64',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,

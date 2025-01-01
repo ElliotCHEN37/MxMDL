@@ -9,7 +9,8 @@ Now, MxMDL is a new beginning. It can work independently without MxLRC and has r
 ## Usage
 ```
 usage: main.py [-h] [-g] [-k TOKEN] [-a ARTIST] [-t TITLE] [-l ALBUM]
-               [--lrctype {synced,unsynced}] [-d DIRECTORY] [-s SLEEP]
+               [--lrctype {synced,unsynced}] [--output_type {lrc,srt}]
+               [-d DIRECTORY] [-s SLEEP]
                [filepath]
 
 MxMDL v1.3 by ElliotCHEN37. Download synced lyrics from Musixmatch freely!
@@ -30,6 +31,8 @@ optional arguments:
                         Album name (optional)
   --lrctype {synced,unsynced}
                         Lyrics type (default: synced)
+  --output_type {lrc,srt}
+                        Output file format (default: lrc)
   -d DIRECTORY, --directory DIRECTORY
                         Directory containing audio files
   -s SLEEP, --sleep SLEEP

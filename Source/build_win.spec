@@ -21,7 +21,7 @@ exe = EXE(
     a.binaries,
     a.datas,
     [],
-    name='RMxLRC_Windows_x64.exe',
+    name='MxMDL_Windows_x64.exe',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
