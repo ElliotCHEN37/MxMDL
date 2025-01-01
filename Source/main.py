@@ -69,17 +69,28 @@ def parse_lyrics(body, lrctype="synced"):
         return None
 
 def format_time(milliseconds):
-    print("[I] Formatting time...")
     minutes, seconds = divmod(timedelta(milliseconds=milliseconds).total_seconds(), 60)
-    return f"[{int(minutes):02}:{int(seconds):02}.{int((milliseconds % 1000) / 10):02}]"
+    return f"{int(minutes):02}:{int(seconds):02}.{int((milliseconds % 1000) / 10):02}"
 
-def write_to_lrc(filename, lyrics_data, synced=True):
+def format_time_srt(milliseconds):
+    seconds, milliseconds = divmod(milliseconds, 1000)
+    minutes, seconds = divmod(seconds, 60)
+    hours, minutes = divmod(minutes, 60)
+    return f"{int(hours):02}:{int(minutes):02}:{int(seconds):02},{int(milliseconds):03}"
+
+def write_to_file(filename, lyrics_data, output_type="lrc", synced=True):
     try:
-        print("[I] Writing to LRC file...")
+        print(f"[I] Writing to {output_type.upper()} file...")
         with open(filename, 'w', encoding='utf-8') as f:
-            for line in lyrics_data:
-                timestamp = format_time(line['startTime']) if synced else ''
-                f.write(f"{timestamp}{line['text']}\n")
+            if output_type == "lrc":
+                for line in lyrics_data:
+                    timestamp = format_time(line['startTime']) if synced else ''
+                    f.write(f"{timestamp}{line['text']}\n")
+            elif output_type == "srt":
+                for i, line in enumerate(lyrics_data):
+                    start_time = format_time_srt(line['startTime'])
+                    end_time = format_time_srt(lyrics_data[i + 1]['startTime']) if i + 1 < len(lyrics_data) else format_time_srt(line['startTime'] + 2000)
+                    f.write(f"{i + 1}\n{start_time} --> {end_time}\n{line['text']}\n\n")
     except IOError as e:
         print(f"[X] Error writing to file: {e}")
 
@@ -96,7 +107,7 @@ def extract_metadata(file_path):
         print(f"[X] Error reading metadata from {file_path}: {e}")
         return None
 
-def process_directory(token, directory, lrctype="synced", sleep_time=0):
+def process_directory(token, directory, lrctype="synced", output_type="lrc", sleep_time=0):
     skipped_files = []
     for root, _, files in os.walk(directory):
         print(f'[I] Scanning "{directory}"...')
@@ -124,7 +135,8 @@ def process_directory(token, directory, lrctype="synced", sleep_time=0):
                     title=title,
                     album=metadata.get("album"),
                     lrctype=lrctype,
-                    output_path=os.path.splitext(file_path)[0] + ".lrc"
+                    output_type=output_type,
+                    output_path=os.path.splitext(file_path)[0] + (".srt" if output_type == "srt" else ".lrc")
                 )
 
                 if sleep_time > 0:
@@ -136,7 +148,7 @@ def process_directory(token, directory, lrctype="synced", sleep_time=0):
         for reason in skipped_files:
             print(reason)
 
-def download_lyrics(token, artist, title, album=None, lrctype="synced", output_path=None):
+def download_lyrics(token, artist, title, album=None, lrctype="synced", output_type="lrc", output_path=None):
     if not token:
         print("[X] Failed to obtain a valid token.")
         return
@@ -156,9 +168,9 @@ def download_lyrics(token, artist, title, album=None, lrctype="synced", output_p
         print(f"[W] No lyrics found for {title} by {artist}.")
         return
 
-    filename = output_path or f"{artist} - {title}.lrc"
-    write_to_lrc(filename, lyrics_data, synced=(lrctype == "synced"))
-    print(f"[I] LRC file '{filename}' saved with {lrctype} lyrics.")
+    filename = output_path or f"{artist} - {title}." + ("srt" if output_type == "srt" else "lrc")
+    write_to_file(filename, lyrics_data, output_type=output_type, synced=(lrctype == "synced"))
+    print(f"[I] {output_type.upper()} file '{filename}' saved with {lrctype} lyrics.")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=f"MxMDL v{APPVER} by ElliotCHEN37. Download synced lyrics from Musixmatch freely!")
@@ -168,6 +180,7 @@ if __name__ == "__main__":
     parser.add_argument("-t", "--title", help="Track title")
     parser.add_argument("-l", "--album", help="Album name (optional)")
     parser.add_argument("--lrctype", choices=["synced", "unsynced"], default="synced", help="Lyrics type (default: synced)")
+    parser.add_argument("--output_type", choices=["lrc", "srt"], default="lrc", help="Output file format (default: lrc)")
     parser.add_argument("-d", "--directory", help="Directory containing audio files")
     parser.add_argument("-s", "--sleep", type=int, default=30, help="Seconds to wait between downloads (default: 30)")
     parser.add_argument("filepath", nargs="?", help="Path to an audio file")
@@ -203,21 +216,23 @@ if __name__ == "__main__":
                         title=title,
                         album=album,
                         lrctype=args.lrctype,
-                        output_path=os.path.splitext(args.filepath)[0] + ".lrc"
+                        output_type=args.output_type,
+                        output_path=os.path.splitext(args.filepath)[0] + (".srt" if args.output_type == "srt" else ".lrc")
                     )
     elif args.directory:
         token = args.token or refresh_token()
         if not token:
             print("[X] Failed to obtain a valid token.")
         else:
-            process_directory(token, args.directory, lrctype=args.lrctype, sleep_time=args.sleep)
+            process_directory(token, args.directory, lrctype=args.lrctype, output_type=args.output_type, sleep_time=args.sleep)
     elif args.artist and args.title:
         download_lyrics(
             token=args.token or refresh_token(),
             artist=args.artist,
             title=args.title,
             album=args.album,
-            lrctype=args.lrctype
+            lrctype=args.lrctype,
+            output_type=args.output_type
         )
     else:
         parser.print_help()

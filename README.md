@@ -41,6 +41,7 @@ optional arguments:
 NEW:<br>
     1. Using "♪ Instrumental ♪" for instrumental songs<br>
     2. Output type<br>
+    3. Save lyrics as SRT file<br>
 OPT:<br>
     1. Adjust arguments<br>
 <details>
