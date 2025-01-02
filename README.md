@@ -1,5 +1,5 @@
 # MxMDL
-> Latest version: [v1.3](https://github.com/ElliotCHEN37/RMxLRC/releases/latest)
+> Latest version: [v1.3.1](https://github.com/ElliotCHEN37/RMxLRC/releases/latest)
 
 ## History
 The project was gradually derived from GMxLRC.<br>
@@ -13,7 +13,7 @@ usage: main.py [-h] [-g] [-k TOKEN] [-a ARTIST] [-t TITLE] [-l ALBUM]
                [-d DIRECTORY] [-s SLEEP]
                [filepath]
 
-MxMDL v1.3 by ElliotCHEN37. Download synced lyrics from Musixmatch freely!
+MxMDL v1.3.1 by ElliotCHEN37. Download synced lyrics from Musixmatch freely!
 
 positional arguments:
   filepath              Path to an audio file
@@ -40,13 +40,18 @@ optional arguments:
 ```
 
 ## Changelog
-<h3>v1.3</h3>
+<h3>v1.3.1</h3>
+FIX:<br>
+    1. LRC file timing
+<details>
+<summary><h3>v1.3</h3></summary>
 NEW:<br>
     1. Using "♪ Instrumental ♪" for instrumental songs<br>
     2. Output type<br>
     3. Save lyrics as SRT file<br>
 OPT:<br>
     1. Adjust arguments<br>
+</details>
 <details>
     <summary><h3>v1.2</h3></summary>
     NEW:<br>

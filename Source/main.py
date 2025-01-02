@@ -7,7 +7,7 @@ from tinytag import TinyTag
 import time
 
 BASE_URL = "https://apic-desktop.musixmatch.com/ws/1.1"
-APPVER = "1.3"
+APPVER = "1.3.1"
 
 def refresh_token():
     try:
@@ -85,7 +85,7 @@ def write_to_file(filename, lyrics_data, output_type="lrc", synced=True):
             if output_type == "lrc":
                 for line in lyrics_data:
                     timestamp = format_time(line['startTime']) if synced else ''
-                    f.write(f"{timestamp}{line['text']}\n")
+                    f.write(f"[{timestamp}]{line['text']}\n")
             elif output_type == "srt":
                 for i, line in enumerate(lyrics_data):
                     start_time = format_time_srt(line['startTime'])
