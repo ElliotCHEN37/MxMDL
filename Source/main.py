@@ -166,15 +166,12 @@ if __name__ == "__main__":
     parser.add_argument("--lrctype", choices=["synced", "unsynced"], default="synced", help="Lyrics type (default: synced)")
     parser.add_argument("--output_type", choices=["lrc", "srt"], default="lrc", help="Output file format (default: lrc)")
     parser.add_argument("filepath", nargs="?", help="Path to an audio file")
-    parser.add_argument("--debug", action="store_true", help="Enable debug mode for more detailed logs")
 
     args = parser.parse_args()
     downloader = LyricsDownloader(BASE_URL, APPVER)
 
     if args.get_token:
         downloader.refresh_token()
-    elif args.debug:
-        logger.setLevel(logging.DEBUG)
     elif args.filepath:
         downloader.token = args.token or downloader.refresh_token()
         metadata = extract_metadata(args.filepath)
