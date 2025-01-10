@@ -6,7 +6,7 @@ from datetime import timedelta
 from tinytag import TinyTag
 import logging
 
-BASE_URL = "https://apic-desktop.musixmatch.com/ws/1.1"
+BASE_URL = "https://apic.musixmatch.com/ws/1.1"
 APPVER = "1.3.2"
 
 LOG_FORMAT = "[%(asctime)s][%(levelname)s]%(message)s"
