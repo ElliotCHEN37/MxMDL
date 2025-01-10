@@ -1,10 +1,4 @@
 # MxMDL
-> Latest version: [v1.3.1](https://github.com/ElliotCHEN37/RMxLRC/releases/latest)
-
-## History
-The project was gradually derived from GMxLRC.<br>
-GMxLRC was designed to provide a GUI interface for MxLRC. Over time GMxLRC was rewritten and renamed RMxLRC. However, RMxLRC still requires MxLRC as a dependency.<br>
-Now, MxMDL is a new beginning. It can work independently without MxLRC and has richer functions than MxLRC!<br>
 
 ## Usage
 ```
