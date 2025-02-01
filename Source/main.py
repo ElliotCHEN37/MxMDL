@@ -5,9 +5,10 @@ import json
 from datetime import timedelta
 from tinytag import TinyTag
 import logging
+import time
 
 BASE_URL = "https://apic.musixmatch.com/ws/1.1"
-APPVER = "1.3.2"
+APPVER = "1.3.3"
 
 LOG_FORMAT = "[%(asctime)s][%(levelname)s]%(message)s"
 logging.basicConfig(
@@ -20,6 +21,49 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+class mxdl_parser:
+    def parse_mxdl_file(mxdl_path):
+        settings = {
+            "format": "lrc",
+            "sleep": 30,
+            "output": os.getcwd(),
+            "token": None,
+            "songs": [],
+            "lrctype": "synced"
+        }
+
+        with open(mxdl_path, "r", encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if not line or line.startswith("#"):
+                    continue
+
+                if line.startswith("!"):
+                    if line.startswith("!download"):
+                        continue
+                    key_value_parts = line[1:].split("=", 1)
+                    if len(key_value_parts) == 2:
+                        key, value = key_value_parts
+                        key, value = key.strip(), value.strip()
+
+                        if key == "format":
+                            settings["format"] = value.lower()
+                        elif key == "sleep":
+                            settings["sleep"] = int(value)
+                        elif key == "output":
+                            settings["output"] = value
+                        elif key == "token":
+                            settings["token"] = value
+                        elif key == "synced":
+                            settings["lrctype"] = "synced" if value.lower() == "true" else "unsynced"
+                else:
+                    parts = line.split("|||")[1:-1]
+                    if len(parts) >= 2:
+                        artist, title = parts[:2]
+                        album = parts[2] if len(parts) > 2 else None
+                        settings["songs"].append((artist, title, album))
+
+        return settings
 
 class LyricsDownloader:
     def __init__(self, base_url, app_ver):
@@ -158,20 +202,41 @@ def parse_lyrics(body, lrctype="synced"):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=f"MxMDL v{APPVER} by ElliotCHEN37. Download synced lyrics from Musixmatch freely!")
-    parser.add_argument("-g", "--get_token", action="store_true", help="Retrieve a new Musixmatch API token")
     parser.add_argument("-k", "--token", help="Musixmatch API token")
     parser.add_argument("-a", "--artist", help="Artist name")
     parser.add_argument("-t", "--title", help="Track title")
     parser.add_argument("-l", "--album", help="Album name (optional)")
     parser.add_argument("--lrctype", choices=["synced", "unsynced"], default="synced", help="Lyrics type (default: synced)")
     parser.add_argument("--output_type", choices=["lrc", "srt"], default="lrc", help="Output file format (default: lrc)")
+    parser.add_argument("-e", "--sleep", type=int, default=30, help="Time interval between downloads (in seconds)")
     parser.add_argument("filepath", nargs="?", help="Path to an audio file")
 
     args = parser.parse_args()
     downloader = LyricsDownloader(BASE_URL, APPVER)
 
-    if args.get_token:
-        downloader.refresh_token()
+    if args.filepath and args.filepath.endswith(".mxdl"):
+        logger.info(f"Processing MXDL file: {args.filepath}")
+        config = mxdl_parser.parse_mxdl_file(args.filepath)
+
+        downloader.token = config["token"] or downloader.refresh_token()
+
+        total_songs = len(config["songs"])
+        for idx, (artist, title, album) in enumerate(config["songs"]):
+            downloader.download_lyrics(
+                artist=artist,
+                title=title,
+                album=album,
+                lrctype=config["lrctype"],
+                output_type=config["format"],
+                output_path=os.path.join(config["output"], f"{artist} - {title}.{config['format']}")
+            )
+
+            remaining_sleep = config["sleep"]
+            if idx < total_songs - 1:
+                while remaining_sleep > 0:
+                    logger.info(f"Sleeping... {remaining_sleep} seconds left")
+                    time.sleep(1)
+                    remaining_sleep -= 1
     elif args.filepath:
         downloader.token = args.token or downloader.refresh_token()
         metadata = extract_metadata(args.filepath)

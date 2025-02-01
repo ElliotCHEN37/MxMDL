@@ -1,17 +1,18 @@
 # MxMDL
+Download any lyrics on Musixmatch directly and freely!<br>
+Go to latest release -> [Here](https://github.com/ElliotCHEN37/MxMDL/releases/latest)
 
 ## Usage
 ```
-usage: main.py [-h] [-g] [-k TOKEN] [-a ARTIST] [-t TITLE] [-l ALBUM] [--lrctype {synced,unsynced}] [--output_type {lrc,srt}] [filepath]
+usage: main.py [-h] [-k TOKEN] [-a ARTIST] [-t TITLE] [-l ALBUM] [--lrctype {synced,unsynced}] [--output_type {lrc,srt}] [-e SLEEP] [filepath]
 
-MxMDL v1.3.2 by ElliotCHEN37. Download synced lyrics from Musixmatch freely!
+MxMDL v1.3.3 by ElliotCHEN37. Download synced lyrics from Musixmatch freely!
 
 positional arguments:
   filepath              Path to an audio file
 
 optional arguments:
   -h, --help            show this help message and exit
-  -g, --get_token       Retrieve a new Musixmatch API token
   -k TOKEN, --token TOKEN
                         Musixmatch API token
   -a ARTIST, --artist ARTIST
@@ -24,18 +25,51 @@ optional arguments:
                         Lyrics type (default: synced)
   --output_type {lrc,srt}
                         Output file format (default: lrc)
+  -e SLEEP, --sleep SLEEP
+                        Time interval between downloads (in seconds)
+```
+
+## MXDL Instruction
+An MXDL file should be ended with .mxdl as its extension.<br>
+An example MXDL file:<br>
+```
+# MxMDL will ignore lines start with "#"
+!format = <SRT or LRC, default: LRC>
+!sleep = <sleep time, default: 30>
+!output = <path to output folder, default: current folder>
+!token = <optional line, if this line isn't available, MxMDL will get one automatically>
+!synced = <"true" or "false" (don't add quotes!), if the value is true, MxMDL will download the synced lyrics>
+!download <this line means the download list start here>
+|||<artist|||<track title>|||<album, optional, if not provided MxMDL will ignore>|||
+|||<artist 2>|||<track title 2>|||
+|||<artist 3>|||<track title 3>|||<album 3>|||
+```
+If you want a simplified one, here you are:<Br>
+```
+#Each line must be ended and started with "|||"
+|||<artist>|||<track title>|||
+|||<artist 2>|||<track title 2>|||
 ```
 
 ## Changelog
-<!-- <details> -->
-<!-- <summary> -->
+<details>
+<summary>
+<h3>v1.3.3</h3>
+</summary>
+NEW:<br>
+    1. Sleep time<br>
+    2. Sleep time output<br>
+    3. Using MXDL file to download multiple lyrics at one time<br>
+</details>
+<details>
+<summary>
 <h3>v1.3.2</h3>
-<!-- </summary> -->
+</summary>
 OPT:<br>
     1. Refactor code with ChatGPT<br>
     2. Using logging instead of print<Br>
     3. Using "apic"<br>
-<!-- </details> -->
+</details>
 <details>
 <summary><h3>v1.3.1</h3></summary>
 FIX:<br>
