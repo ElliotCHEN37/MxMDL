@@ -6,9 +6,11 @@ from datetime import timedelta
 from tinytag import TinyTag
 import logging
 import time
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 
 BASE_URL = "https://apic.musixmatch.com/ws/1.1"
-APPVER = "1.3.3"
+APPVER = "1.3.4"
 
 LOG_FORMAT = "[%(asctime)s][%(levelname)s]%(message)s"
 logging.basicConfig(
@@ -21,7 +23,8 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-class mxdl_parser:
+class MxdlParser:
+    @staticmethod
     def parse_mxdl_file(mxdl_path):
         settings = {
             "format": "lrc",
@@ -97,9 +100,18 @@ class LyricsDownloader:
 
         try:
             logger.info(f"Finding lyrics for '{title}' by '{artist}'...")
-            response = requests.get(f"{self.base_url}/macro.subtitles.get", params=params)
+            self.session = requests.Session()
+            retries = Retry(total=3, backoff_factor=1, status_forcelist=[500, 502, 503, 504])
+            self.session.mount("https://", HTTPAdapter(max_retries=retries))
+
+            response = self.session.get(f"{self.base_url}/macro.subtitles.get", params=params)
             response.raise_for_status()
-            body = response.json().get("message", {}).get("body", {}).get("macro_calls", {})
+            try:
+                data = response.json()
+                body = data.get("message", {}).get("body", {}).get("macro_calls", {})
+            except (requests.JSONDecodeError, AttributeError) as e:
+                logger.error(f"Error parsing API response: {e}", exc_info=True)
+                return None
             instrumental = body.get("track.lyrics.get", {}).get("message", {}).get("body", {}).get("lyrics", {}).get("instrumental")
             if instrumental:
                 logger.info(f"The song '{title}' by '{artist}' is instrumental.")
@@ -112,7 +124,7 @@ class LyricsDownloader:
 
     def download_lyrics(self, artist, title, album=None, lrctype="synced", output_type="lrc", output_path=None):
         if not self.token:
-            self.refresh_token()
+            self.token = self.refresh_token()
             return
 
         lyrics_data = self.find_lyrics(artist, title, album)
@@ -153,16 +165,11 @@ def write_to_file(filename, lyrics_data, output_type="lrc", synced=True):
     try:
         logger.info(f"Writing lyrics to {output_type.upper()} file: {filename}")
         with open(filename, 'w', encoding='utf-8') as f:
-            if output_type == "lrc":
-                for line in lyrics_data:
-                    timestamp = format_time(line['startTime']) if synced else ''
-                    f.write(f"[{timestamp}]{line['text']}\n")
-            elif output_type == "srt":
-                for i, line in enumerate(lyrics_data):
-                    start_time = format_time_srt(line['startTime'])
-                    end_time = format_time_srt(
-                        lyrics_data[i + 1]['startTime']) if i + 1 < len(lyrics_data) else format_time_srt(line['startTime'] + 2000)
-                    f.write(f"{i + 1}\n{start_time} --> {end_time}\n{line['text']}\n\n")
+            for i, line in enumerate(lyrics_data):
+                timestamp = format_time_srt(line['startTime']) if output_type == "srt" else format_time(
+                    line['startTime'])
+                formatted_text = f"{i + 1}\n{timestamp} --> {format_time_srt(lyrics_data[i + 1]['startTime'])}\n{line['text']}\n\n" if output_type == "srt" else f"[{timestamp}]{line['text']}\n"
+                f.write(formatted_text)
         logger.info(f"{output_type.upper()} file saved successfully.")
     except IOError as e:
         logger.error(f"Error writing to file: {e}", exc_info=True)
@@ -216,7 +223,7 @@ if __name__ == "__main__":
 
     if args.filepath and args.filepath.endswith(".mxdl"):
         logger.info(f"Processing MXDL file: {args.filepath}")
-        config = mxdl_parser.parse_mxdl_file(args.filepath)
+        config = MxdlParser.parse_mxdl_file(args.filepath)
 
         downloader.token = config["token"] or downloader.refresh_token()
 
