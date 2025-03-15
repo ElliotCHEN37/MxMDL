@@ -1,6 +1,6 @@
-# MxMDL 🎵
-🚀 Download any lyrics from Musixmatch directly and freely!<br>
-🔗 Latest Release: [Click Here](http://github.com/ElliotCHEN37/MxMDL/releases/latest)
+# MxMDL
+Download any lyrics from Musixmatch directly and freely!<br>
+Latest Release: [Click Here](http://github.com/ElliotCHEN37/MxMDL/releases/latest)
 
 ## Features
 ✅ Download Synced or Unsynced Lyrics<br>
@@ -78,55 +78,68 @@ python main.py your_file.mxdl
 ```
 
 ## Changelog
-<h3>v1.3.4 (Latest)</h3>
-<h4>✅ Optimizations:</h4>
+<h3>v1.3.5 (Latest)</h3>
+<h4>New Features</h4>
+<li>Asynchronous API Requests (asyncio + aiohttp)</li>
+<h4>Optimizations & Fixes</h4>
+<li>Improved Token Handling</li>
+<li>Enhanced Error Handling for API Responses</li>
+<li>Prevents crashes when API returns non-JSON data</li>
+<li>Handles missing subtitles more gracefully</li>
+<li>Fixed Empty File Issues</li>
+<li>Prevents writing empty .lrc or .srt files if no lyrics are found</li>
+<li>Ensures directories are created before writing output</li>
+
+<details>
+<summary><h3>Previous Versions</h3></summary>
+
+<h3>v1.3.4</h3>
+<h4>Optimizations:</h4>
 <li>Renamed Classes to follow Python naming conventions.</li>
 <li>API Requests More Stable with retry mechanism.</li>
 <li>Reduced Unnecessary API Calls for efficiency.</li>
 <li>Improved Error Handling to avoid JSON parse errors.</li>
 
-<details>
-<summary><h3>Previous Versions</h3></summary>
 <h3>v1.3.3</h3>
-<h4>🆕 New Features</h4>
+<h4>New Features</h4>
 <li>Sleep Time Customization</li>
 <li><code>.mxdl</code> Batch File Support</li>
 <li>Logging Enhancements</li>
 
 <h3>v1.3.2</h3>
-<h4>🔧 Code Refactor</h4>
+<h4>Code Refactor</h4>
 <li>Better Logging</li>
 <li>Improved Code Structure</li>
 <li>API Endpoint Adjustments</li>
 
 <h3>v1.3.1</h3>
-<h4>🐛 Fix</h4>
+<h4>Fix</h4>
 <li>Fixed LRC Timing Issues</li>
 
 <h3>v1.3</h3>
-<h4>🆕 New Features</h4>
+<h4>New Features</h4>
 <li>Added <code>♪ Instrumental ♪</code> for instrumental songs</li>
 <li>Support for SRT file output</li>
 <li>Command-line arguments improvement</li>
 
 <h3>v1.2</h3>
-<h4>🆕 New</h4>
+<h4>New</h4>
 <li>Support for Direct File Input</li>
-<h4>🐛 Fix</h4>
+<h4>Fix</h4>
 <li>Resolved Issues with Instrumental Songs</li>
 
 <h3>v1.1</h3>
-<h4>🐛 Fix</h4>
+<h4>Fix</h4>
 <li>Token Retrieval Optimization</li>
-<h4>🆕 New</h4>
+<h4>New</h4>
 <li>Changelog Viewing via --chlog</li>
-<h4>🔧 Optimization</h4>
+<h4>Optimization</h4>
 <li>Code Structure Improvement</li>
 
 <h3>v1.0</h3>
-<h4>🎉 Initial Release</h4>
+<h4>Initial Release</h4>
 
 </details>
 
 License
-📜 [MIT License](LICENSE.txt)
+[MIT License](LICENSE.txt)

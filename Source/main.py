@@ -8,9 +8,12 @@ import logging
 import time
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
+import asyncio
+import aiohttp
+import aiofiles
 
 BASE_URL = "https://apic.musixmatch.com/ws/1.1"
-APPVER = "1.3.4"
+APPVER = "1.3.5"
 
 LOG_FORMAT = "[%(asctime)s][%(levelname)s]%(message)s"
 logging.basicConfig(
@@ -22,6 +25,7 @@ logging.basicConfig(
     ]
 )
 logger = logging.getLogger(__name__)
+
 
 class MxdlParser:
     @staticmethod
@@ -68,22 +72,28 @@ class MxdlParser:
 
         return settings
 
+
 class LyricsDownloader:
     def __init__(self, base_url, app_ver):
         self.base_url = base_url
         self.app_ver = app_ver
         self.token = None
 
+        self.session = requests.Session()
+        retries = Retry(total=3, backoff_factor=1, status_forcelist=[500, 502, 503, 504])
+        self.session.mount("https://", HTTPAdapter(max_retries=retries))
+
     def refresh_token(self):
         try:
             logger.info("Obtaining token...")
-            response = requests.get(f"{self.base_url}/token.get?app_id=web-desktop-app-v1.0")
+            response = self.session.get(f"{self.base_url}/token.get?app_id=web-desktop-app-v1.0")
             response.raise_for_status()
             self.token = response.json().get("message", {}).get("body", {}).get("user_token")
             logger.info(f"Token obtained: {self.token}")
             return self.token
         except requests.RequestException as e:
             logger.error(f"Error obtaining token: {e}", exc_info=True)
+            return None
 
     def find_lyrics(self, artist, title, album=None):
         params = {
@@ -100,10 +110,6 @@ class LyricsDownloader:
 
         try:
             logger.info(f"Finding lyrics for '{title}' by '{artist}'...")
-            self.session = requests.Session()
-            retries = Retry(total=3, backoff_factor=1, status_forcelist=[500, 502, 503, 504])
-            self.session.mount("https://", HTTPAdapter(max_retries=retries))
-
             response = self.session.get(f"{self.base_url}/macro.subtitles.get", params=params)
             response.raise_for_status()
             try:
@@ -112,7 +118,8 @@ class LyricsDownloader:
             except (requests.JSONDecodeError, AttributeError) as e:
                 logger.error(f"Error parsing API response: {e}", exc_info=True)
                 return None
-            instrumental = body.get("track.lyrics.get", {}).get("message", {}).get("body", {}).get("lyrics", {}).get("instrumental")
+            instrumental = body.get("track.lyrics.get", {}).get("message", {}).get("body", {}).get("lyrics", {}).get(
+                "instrumental")
             if instrumental:
                 logger.info(f"The song '{title}' by '{artist}' is instrumental.")
                 return {"instrumental": True}
@@ -122,15 +129,50 @@ class LyricsDownloader:
             logger.error(f"Error finding lyrics: {e}", exc_info=True)
             return None
 
+    async def async_find_lyrics(self, session, artist, title, album=None):
+        if not self.token:
+            self.token = self.refresh_token()
+            if not self.token:
+                logger.error("Failed to obtain a valid token, cannot proceed.")
+                return None
+
+        params = {
+            "format": "json",
+            "namespace": "lyrics_richsynched",
+            "subtitle_format": "mxm",
+            "app_id": "web-desktop-app-v1.0",
+            "q_artist": artist,
+            "q_track": title,
+            "usertoken": self.token
+        }
+        if album:
+            params["q_album"] = album
+
+        try:
+            async with session.get(f"{self.base_url}/macro.subtitles.get", params=params) as response:
+                data = await response.json()
+                return data.get("message", {}).get("body", {}).get("macro_calls", {})
+        except Exception as e:
+            logger.error(f"Error fetching lyrics for '{title}': {e}", exc_info=True)
+            return None
+
+    async def download_multiple_lyrics(self, songs):
+        async with aiohttp.ClientSession() as session:
+            tasks = [self.async_find_lyrics(session, artist, title, album) for artist, title, album in songs]
+            results = await asyncio.gather(*tasks)
+            return results
+
     def download_lyrics(self, artist, title, album=None, lrctype="synced", output_type="lrc", output_path=None):
         if not self.token:
             self.token = self.refresh_token()
-            return
+            if not self.token:
+                logger.error("Failed to obtain a valid token, cannot proceed.")
+                return
 
         lyrics_data = self.find_lyrics(artist, title, album)
 
-        if not lyrics_data:
-            logger.warning(f"Lyrics not found for {title} by {artist}.")
+        if not lyrics_data or not isinstance(lyrics_data, dict):
+            logger.warning(f"Lyrics not found or invalid format for {title} by {artist}.")
             return
 
         if lyrics_data.get("instrumental"):
@@ -164,13 +206,44 @@ def extract_metadata(file_path):
 def write_to_file(filename, lyrics_data, output_type="lrc", synced=True):
     try:
         logger.info(f"Writing lyrics to {output_type.upper()} file: {filename}")
+
+        os.makedirs(os.path.dirname(os.path.abspath(filename)), exist_ok=True)
+
         with open(filename, 'w', encoding='utf-8') as f:
             for i, line in enumerate(lyrics_data):
-                timestamp = format_time_srt(line['startTime']) if output_type == "srt" else format_time(
-                    line['startTime'])
-                formatted_text = f"{i + 1}\n{timestamp} --> {format_time_srt(lyrics_data[i + 1]['startTime'])}\n{line['text']}\n\n" if output_type == "srt" else f"[{timestamp}]{line['text']}\n"
+                timestamp = format_time(line.get("startTime", 0)) if output_type == "lrc" else format_time_srt(
+                    line.get("startTime", 0))
+                if output_type == "srt":
+                    end_time = format_time_srt(lyrics_data[i + 1].get("startTime", 0)) if i + 1 < len(
+                        lyrics_data) else format_time_srt(line.get("startTime", 0) + 2000)
+                    formatted_text = f"{i + 1}\n{timestamp} --> {end_time}\n{line['text']}\n\n"
+                else:
+                    formatted_text = f"[{timestamp}]{line['text']}\n"
                 f.write(formatted_text)
-        logger.info(f"{output_type.upper()} file saved successfully.")
+
+        logger.info(f"{output_type.upper()} file saved successfully at: {filename}")
+    except IOError as e:
+        logger.error(f"Error writing to file: {e}", exc_info=True)
+
+
+async def async_write_to_file(filename, lyrics_data, output_type="lrc", synced=True):
+    try:
+        logger.info(f"Writing lyrics to {output_type.upper()} file: {filename}")
+
+        os.makedirs(os.path.dirname(os.path.abspath(filename)), exist_ok=True)
+
+        async with aiofiles.open(filename, 'w', encoding='utf-8') as f:
+            for i, line in enumerate(lyrics_data):
+                timestamp = format_time(line.get("startTime", 0)) if output_type == "lrc" else format_time_srt(
+                    line.get("startTime", 0))
+                if output_type == "srt":
+                    end_time = format_time_srt(lyrics_data[i + 1].get("startTime", 0)) if i + 1 < len(
+                        lyrics_data) else format_time_srt(line.get("startTime", 0) + 2000)
+                    formatted_text = f"{i + 1}\n{timestamp} --> {end_time}\n{line['text']}\n\n"
+                else:
+                    formatted_text = f"[{timestamp}]{line['text']}\n"
+                await f.write(formatted_text)
+        logger.info(f"{output_type.upper()} file saved successfully at: {filename}")
     except IOError as e:
         logger.error(f"Error writing to file: {e}", exc_info=True)
 
@@ -194,29 +267,50 @@ def parse_lyrics(body, lrctype="synced"):
             return [{"text": "♪ Instrumental ♪", "startTime": 0}]
 
         if lrctype == "synced":
-            subtitle = body.get("track.subtitles.get", {}).get("message", {}).get("body", {}).get("subtitle_list", [{}])[0].get("subtitle", {})
-            return [
-                {"text": line["text"] or "♪", "startTime": line["time"]["total"] * 1000}
-                for line in json.loads(subtitle.get("subtitle_body", "[]"))
-            ] if subtitle else None
+            subtitle = \
+            body.get("track.subtitles.get", {}).get("message", {}).get("body", {}).get("subtitle_list", [{}])[0].get(
+                "subtitle", {})
+            try:
+                subtitle_body = subtitle.get("subtitle_body")
+                if not subtitle_body:
+                    logger.warning("No subtitle body found, skipping lyrics parsing.")
+                    return None
 
-        lyrics_body = body.get("track.lyrics.get", {}).get("message", {}).get("body", {}).get("lyrics", {}).get("lyrics_body")
-        return [{"text": line} for line in lyrics_body.split("\n") if line] if lyrics_body else None
+                try:
+                    parsed_lyrics = json.loads(subtitle_body)
+                except (json.JSONDecodeError, TypeError) as e:
+                    logger.error(f"Error decoding subtitle body: {e}", exc_info=True)
+                    return None
+                return [
+                    {"text": line.get("text", "♪"), "startTime": line.get("time", {}).get("total", 0) * 1000}
+                    for line in parsed_lyrics
+                ]
+            except (json.JSONDecodeError, KeyError, TypeError) as e:
+                logger.error(f"Error parsing subtitle body: {e}", exc_info=True)
+                return None
+
+        lyrics_body = body.get("track.lyrics.get", {}).get("message", {}).get("body", {}).get("lyrics", {}).get(
+            "lyrics_body")
+        return [{"text": line, "startTime": 0} for line in lyrics_body.split("\n") if line] if lyrics_body else None
     except (KeyError, json.JSONDecodeError) as e:
         logger.error(f"Error parsing lyrics: {e}", exc_info=True)
         return None
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description=f"MxMDL v{APPVER} by ElliotCHEN37. Download synced lyrics from Musixmatch freely!")
+    parser = argparse.ArgumentParser(
+        description=f"MxMDL v{APPVER} by ElliotCHEN37. Download synced lyrics from Musixmatch freely!")
     parser.add_argument("-k", "--token", help="Musixmatch API token")
     parser.add_argument("-a", "--artist", help="Artist name")
     parser.add_argument("-t", "--title", help="Track title")
     parser.add_argument("-l", "--album", help="Album name (optional)")
-    parser.add_argument("--lrctype", choices=["synced", "unsynced"], default="synced", help="Lyrics type (default: synced)")
-    parser.add_argument("--output_type", choices=["lrc", "srt"], default="lrc", help="Output file format (default: lrc)")
+    parser.add_argument("--lrctype", choices=["synced", "unsynced"], default="synced",
+                        help="Lyrics type (default: synced)")
+    parser.add_argument("--output_type", choices=["lrc", "srt"], default="lrc",
+                        help="Output file format (default: lrc)")
     parser.add_argument("-e", "--sleep", type=int, default=30, help="Time interval between downloads (in seconds)")
-    parser.add_argument("filepath", nargs="?", help="Path to an audio file")
+    parser.add_argument("filepath", nargs="?", help="Path to an audio file or mxdl file")
+    parser.add_argument("-o", "--output", help="Output directory path (default: current directory)")
 
     args = parser.parse_args()
     downloader = LyricsDownloader(BASE_URL, APPVER)
