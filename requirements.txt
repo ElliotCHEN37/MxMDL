@@ -1,3 +1,2 @@
 requests
 tinytag
-urllib3
